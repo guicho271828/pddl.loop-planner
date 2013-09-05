@@ -40,6 +40,9 @@
                    (not (string= "pddl" (pathname-type path)))))
              (list-directory domain-directory)))
 
+(defun parallel-length (tas)
+  (timed-state-time (timed-action-end (lastcar tas))))
+
 (test (test-problem-and-get-plans)
   (dotimes (i 8)
     (let ((ppath (random-elt problem-pathnames)))
@@ -59,7 +62,7 @@
             (dolist (plan plans)
               (let* ((seq-length (cost (simulate-plan (pddl-environment :plan plan))))
                      (tas (reschedule plan :minimum-slack))
-                     (parallel-length (timed-state-time (timed-action-end (lastcar tas))))
+                     (parallel-length (parallel-length tas))
                      (base-count (count-if (rcurry #'pddl-typep base-type)
                                            (objects *problem*)))
                      (time-per-base (/ parallel-length base-count)))
