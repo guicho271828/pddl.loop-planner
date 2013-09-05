@@ -6,7 +6,8 @@
 (in-package :cl-user)
 (defpackage pddl.loop-planner
   (:use :cl :pddl :pddl.scheduler :pddl.loop-detection :pddl.instances
-  :optima :iterate :alexandria :osicat :inferior-shell))
+  :optima :iterate :alexandria :osicat :inferior-shell)
+  (:shadow :minimize :maximize))
 (in-package :pddl.loop-planner)
 
 (cl-syntax:use-syntax :annot)
@@ -29,9 +30,28 @@
       (print-pddl-object problem s))))
 
 
-(defvar *fd-dir* #p"~/repos/downward")
+(defvar *fd-dir* (pathname-as-directory #p"~/repos/downward"))
 (defvar *options* "ipc seq-sat-lama-2011")
-(defvar *translate* "$FD_DIR/src/translate/translate.py")
-(defvar *preprocess* "$FD_DIR/src/preprocess/preprocess")
-(defvar *search* "DIR=$FD_DIR/src/search")
-(defvar *search* "$SEARCH_DIR/downward $OPTIONS")
+(defvar *translate*
+  (merge-pathnames "src/translate/translate.py" *fd-dir*))
+(defvar *preprocess*
+  (merge-pathnames "src/preprocess/preprocess" *fd-dir*))
+(defvar *search*
+  (merge-pathnames "src/search/downward" *fd-dir*))
+
+(defvar *system*
+  (pathname-as-directory 
+   (asdf:system-source-directory :pddl.loop-planner)))
+
+(defvar *test-problem*
+  (merge-pathnames "test-problem.sh" *system*))
+		   
+
+(defun test-problem (problem
+		     domain
+		     &key
+		     (memory 200000)
+		     (time-limit 10))
+  (run `(,*test-problem* -m ,memory -t ,time-limit ,problem ,domain)
+       :show t
+       :on-error nil))
