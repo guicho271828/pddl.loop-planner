@@ -12,6 +12,7 @@
   :author "Masataro Asai"
   :license ""
   :depends-on (:pddl.loop-planner
+	       :pddl-test
                :cl-test-more)
   :components ((:module "t"
                 :components
