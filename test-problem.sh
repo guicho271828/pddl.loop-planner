@@ -2,8 +2,9 @@
 
 TIME_LIMIT=1800
 MEMORY_USAGE=1000000
+OPTIONS="ipc seq-sat-lama-2011"
 	
-while getopts ":t:m:" opt
+while getopts ":t:m:o:" opt
 do
     case ${opt} in
 	t) # echo limit execution time under 30 min (same as ICAPS)
@@ -11,6 +12,9 @@ do
 	
 	m) # limit memory usage under 1 GB
 	    MEMORY_USAGE=${OPTARG:-$MEMORY_USAGE} ;;
+
+	o) # specifies the search option
+	    OPTIONS=${OPTARG:-$OPTIONS} ;;
 	
 	* ) echo "unsupported option" ;;
     esac
@@ -42,8 +46,6 @@ SAS_PLUS=$PROBLEM_NAME.sasp
 FD_DIR=~/repos/downward
 
 # lm_ff_syn = LAMA/FF synergy
-
-OPTIONS="ipc seq-sat-lama-2011"
 
 # '--heuristic "hlm=lmcut(lm_rhw(reasonable_orders=true,lm_cost_type=2,cost_type=2))"
 #          --search "lazy_wastar([hlm],preferred=[hlm],w=2)"'
