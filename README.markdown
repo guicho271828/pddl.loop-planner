@@ -24,6 +24,10 @@ Also, it depends on the following libraries:
     Jonathan Amsterdam's iterator/gatherer/accumulator facility
 + ALEXANDRIA by ** :
     Alexandria is a collection of portable public domain utilities.
++ OSICAT by *Nikodemus Siivola <nikodemus@random-state.net>* :
+    A lightweight operating system interface
++ INFERIOR-SHELL by ** :
+    spawn local or remote processes and shell pipes
 
 ## Installation
 

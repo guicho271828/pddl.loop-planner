@@ -22,7 +22,9 @@
                :pddl.instances
                :optima
                :iterate
-               :alexandria)
+               :alexandria
+               :osicat
+               :inferior-shell)
   :components ((:module "src"
                 :components
                 ((:file "pddl.loop-planner"))))
@@ -40,3 +42,9 @@
           (setf (fill-pointer seq) (read-sequence seq stream))
           seq)))
   :in-order-to ((test-op (load-op pddl.loop-planner-test))))
+
+
+(defmethod asdf:perform ((op asdf:test-op)
+			 (system (eql (asdf:find-system :pddl.loop-planner))))
+  (funcall (find-symbol "RUN!" (find-package :fiveam)) :pddl.loop-planner)
+  t)
