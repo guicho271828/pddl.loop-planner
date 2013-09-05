@@ -19,7 +19,6 @@
   :depends-on (:pddl
                :pddl.scheduler
                :pddl.loop-detection
-               :pddl.instances
                :optima
                :iterate
                :alexandria

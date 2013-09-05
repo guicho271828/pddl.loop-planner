@@ -7,6 +7,8 @@
 (defpackage pddl.loop-planner-test
   (:use :cl
 	:alexandria
+        :osicat
+        :guicho-red-black-tree
 	:pddl
         :pddl.loop-planner
 	:pddl.scheduler
@@ -17,19 +19,63 @@
 (def-suite :pddl.loop-planner :in :pddl)
 (in-suite :pddl.loop-planner)
 
-(defvar loop-plan-results)
+(defvar loop-plan-results
+  (make-hash-table))
 
-(let ((*package* (find-package :pddl.instances)))
-    (let ((name (parse-file #p"/home/guicho/repos/CELL-ASSEMBLY/CELL-ASSEMBLY-MODEL2A-1-STEADY-STATE-0-1.pddl")))
-      (export name)))
+(defvar parallelized-loop-plan-results
+  (leaf))
 
-(test test-problem-and-get-plans
-  (setf loop-plan-results
-	(mapcar
-	 (lambda (path)
-	    (pddl-plan :domain cell-assembly
-		       :problem (symbol-value
-				 (find-symbol "CELL-ASSEMBLY-MODEL2A-1-STEADY-STATE-0-1"))
-		       :path path))
-	 (test-problem #p"/home/guicho/repos/CELL-ASSEMBLY/CELL-ASSEMBLY-MODEL2A-1-STEADY-STATE-0-1.pddl"
-		       #p"/home/guicho/repos/CELL-ASSEMBLY/domain.pddl"))))
+(defvar domain-directory
+  (asdf:system-relative-pathname
+   :pddl.loop-planner
+   #p"CELL-ASSEMBLY/"))
+
+(defvar base-type
+  (type (object cell-assembly-model2a-1 'b-0)))
+
+(defvar domain-pathname (merge-pathnames #p"domain.pddl" domain-directory))
+(defvar problem-pathnames
+  (remove-if (lambda (path)
+               (or (equal path domain-pathname)
+                   (not (string= "pddl" (pathname-type path)))))
+             (list-directory domain-directory)))
+
+(test (test-problem-and-get-plans)
+  (dotimes (i 8)
+    (let ((ppath (random-elt problem-pathnames)))
+      (finishes
+        (let ((*domain* cell-assembly)
+              (*problem* (let ((*package* (find-package :pddl.instances)))
+                           (symbol-value
+                            (handler-bind ((found-in-dictionary #'muffle-warning))
+                              (parse-file ppath))))))
+          (let ((plans
+                 (mapcar
+                  (lambda (path) (pddl-plan :path path))
+                  (test-problem ppath domain-pathname :stream nil))))
+
+            (setf (gethash *problem* loop-plan-results) plans)
+            
+            (dolist (plan plans)
+              (let* ((seq-length (cost (simulate-plan (pddl-environment :plan plan))))
+                     (tas (reschedule plan :minimum-slack))
+                     (parallel-length (timed-state-time (timed-action-end (lastcar tas))))
+                     (base-count (count-if (rcurry #'pddl-typep base-type)
+                                           (objects *problem*)))
+                     (time-per-base (/ parallel-length base-count)))
+                (is (typep tas 'list))
+                (is (numberp seq-length))
+                (is (numberp parallel-length))
+                (is (<= parallel-length seq-length))
+                (is (< 1 base-count))
+                (format t "~2%Parallel plan: sequencial ~a parallel ~a base ~a time/base ~5,2f~2%"
+                        seq-length parallel-length base-count time-per-base)
+
+                (setf parallelized-loop-plan-results
+                      (rb-insert
+                       parallelized-loop-plan-results
+                       time-per-base
+                       (cons (list plan *problem*)
+                             (rb-member time-per-base
+                                        parallelized-loop-plan-results))))))))))))
+                   

@@ -11,8 +11,9 @@
 (defsystem pddl.loop-planner-test
   :author "Masataro Asai"
   :license ""
-  :depends-on (:pddl.loop-planner
-	       :pddl-test
+  :depends-on (:pddl.instances
+	       :pddl.loop-planner
+               :pddl-test
                :cl-test-more)
   :components ((:module "t"
                 :components
