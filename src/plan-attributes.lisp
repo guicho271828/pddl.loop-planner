@@ -10,9 +10,12 @@
 
 @export
 (defun parallel-length (plan)
-  (timed-state-time
-   (timed-action-end
-    (lastcar (reschedule plan :minimum-slack)))))
+  (reduce #'max
+          (reschedule plan :minimum-slack)
+          :key (lambda (ta)
+                 (timed-state-time
+                  (timed-action-end ta)))
+          :initial-value 0))
 
 @export
 (defun count-objects (problem base-type)
