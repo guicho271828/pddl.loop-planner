@@ -51,6 +51,8 @@ FD_DIR=~/repos/downward
 #          --search "lazy_wastar([hlm],preferred=[hlm],w=2)"'
 
 rm -f $PROBLEM_NAME.time
+rm -f $PROBLEM_NAME.cost
+rm -f $PROBLEM_NAME.*.log
 rm -f $PROBLEM_NAME.plan*
 rm -f $SAS
 rm -f $SAS_PLUS

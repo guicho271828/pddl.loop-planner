@@ -20,14 +20,19 @@
                :pddl.scheduler
                :pddl.loop-detection
                :bordeaux-threads
+               :bt-semaphore
                :optima
                :iterate
                :alexandria
                :osicat
                :inferior-shell)
-  :components ((:module "src"
+  :components ((:file "src/package")
+               (:module "src"
                 :components
-                ((:file "pddl.loop-planner"))))
+                ((:file "planner")
+                 (:file "threads")
+                 (:file "plan-attributes"))
+                :depends-on ("src/package")))
   :description ""
   :long-description
   #.(with-open-file (stream (merge-pathnames
