@@ -19,6 +19,7 @@
   :depends-on (:pddl
                :pddl.scheduler
                :pddl.loop-detection
+               :bordeaux-threads
                :optima
                :iterate
                :alexandria

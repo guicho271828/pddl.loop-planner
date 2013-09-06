@@ -6,7 +6,8 @@
 (in-package :cl-user)
 (defpackage pddl.loop-planner
   (:use :cl :pddl :pddl.scheduler :pddl.loop-detection
-	:optima :iterate :alexandria :osicat :inferior-shell)
+	:optima :iterate :alexandria :osicat :inferior-shell
+        :bordeaux-threads)
   (:shadow :minimize :maximize))
 (in-package :pddl.loop-planner)
 
@@ -15,12 +16,16 @@
 
 
 @export
-(defun write-problem (problem &optional (basedir (asdf:system-source-directory
-						  :pddl.loop-planner)))
+(defun write-problem (problem
+                      &optional (basedir
+                                 (asdf:system-source-directory
+                                  :pddl.loop-planner)))
   (let ((path 
 	 (merge-pathnames
 	  (let ((*print-escape* nil))
-	    (format nil "~a/~a.pddl" (name (domain problem)) (name problem)))
+	    (format nil "~a/~a.pddl"
+                    (name (domain problem))
+                    (name problem)))
 	  basedir)))
     (ensure-directories-exist path :verbose t)
     (print path)
@@ -56,12 +61,18 @@
 		     (options *options*)
 		     (memory 200000)
 		     (time-limit 10))
-  (run `(,*test-problem* -m ,memory -t ,time-limit -o ,options ,problem ,domain)
+  (run `(,*test-problem* -m ,memory
+                         -t ,time-limit
+                         -o ,options
+                         ,problem ,domain)
        :show t
        :output stream
        :on-error nil)
-  (run `(pipe (find ,(pathname-directory-pathname problem) -maxdepth 1 -mindepth 1)
+  (run `(pipe (find ,(pathname-directory-pathname problem)
+                    -maxdepth 1
+                    -mindepth 1)
 	      (grep (,(pathname-name problem) .plan)))
        :show t
        :output :lines
        :on-error nil))
+

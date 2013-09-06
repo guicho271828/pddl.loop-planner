@@ -45,40 +45,49 @@
 
 (test (test-problem-and-get-plans)
   (dotimes (i 8)
-    (let ((ppath (random-elt problem-pathnames)))
-      (finishes
-        (let ((*domain* cell-assembly)
-              (*problem* (let ((*package* (find-package :pddl.instances)))
-                           (symbol-value
-                            (handler-bind ((found-in-dictionary #'muffle-warning))
-                              (parse-file ppath))))))
-          (let ((plans
-                 (mapcar
-                  (lambda (path) (pddl-plan :path path))
-                  (test-problem ppath domain-pathname :stream nil))))
+    (let* ((ppath (random-elt problem-pathnames))
+           (*domain* cell-assembly)
+           (*problem*
+            (let ((*package* (find-package :pddl.instances)))
+              (symbol-value
+               (handler-bind ((found-in-dictionary
+                               #'muffle-warning))
+                 (parse-file ppath)))))
+           (plans
+            (mapcar
+             (lambda (path) (pddl-plan :path path))
+             (test-problem ppath domain-pathname :stream nil))))
+      
+      (setf (gethash *problem* loop-plan-results) plans)
+      
+      (dolist (plan plans)
+        (let* ((seq-length
+                (cost (simulate-plan
+                       (pddl-environment :plan plan))))
+               (tas (reschedule plan :minimum-slack))
+               (parallel-length (parallel-length tas))
+               (base-count (count-if (rcurry #'pddl-typep base-type)
+                                     (objects *problem*)))
+               (time-per-base (/ parallel-length base-count)))
+          (is (typep tas 'list))
+          (is (numberp seq-length))
+          (is (numberp parallel-length))
+          (is (<= parallel-length seq-length))
+          (is (< 1 base-count))
+          (format
+           t "
 
-            (setf (gethash *problem* loop-plan-results) plans)
-            
-            (dolist (plan plans)
-              (let* ((seq-length (cost (simulate-plan (pddl-environment :plan plan))))
-                     (tas (reschedule plan :minimum-slack))
-                     (parallel-length (parallel-length tas))
-                     (base-count (count-if (rcurry #'pddl-typep base-type)
-                                           (objects *problem*)))
-                     (time-per-base (/ parallel-length base-count)))
-                (is (typep tas 'list))
-                (is (numberp seq-length))
-                (is (numberp parallel-length))
-                (is (<= parallel-length seq-length))
-                (is (< 1 base-count))
-                (format t "~2%Parallel plan: sequencial ~a parallel ~a base ~a time/base ~5,2f~2%"
-                        seq-length parallel-length base-count time-per-base)
+Parallel plan: sequencial ~a parallel ~a base ~a time/base ~5,2f
 
-                (setf parallelized-loop-plan-results
-                      (rb-insert
-                       parallelized-loop-plan-results
-                       time-per-base
-                       (cons (list plan *problem*)
-                             (rb-member time-per-base
-                                        parallelized-loop-plan-results))))))))))))
+"
+           seq-length parallel-length base-count time-per-base)
+
+          (setf parallelized-loop-plan-results
+                (rb-insert
+                 parallelized-loop-plan-results
+                 time-per-base
+                 (cons (list plan *problem*)
+                       (rb-member
+                        time-per-base
+                        parallelized-loop-plan-results)))))))))
                    
