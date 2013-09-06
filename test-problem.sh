@@ -22,23 +22,19 @@ done
 
 shift $(($OPTIND - 1))
 
-echo "ulimit -m $MEMORY_USAGE"
-echo "ulimit -t $TIME_LIMIT"
-
 ulimit -m $MEMORY_USAGE
 ulimit -t $TIME_LIMIT
 
-PDDL=$1
+PDDL=$(realpath $1)
+DOMAIN=$(realpath $2)
 
 if [[ $PDDL =~ .*\.pddl ]]
 then
     PROBLEM_NAME=${PDDL%.pddl}
-    PROBLEM_NUM=${PDDL:0:3}
-elif [[ $PDDL =~ pfile.* ]]
+elif [[ $PDDL =~ .*pfile.* ]]
 then
     # pfile1 etc...
     PROBLEM_NAME=$PDDL
-    PROBLEM_NUM=${PDDL:4}
 fi  
 
 SAS=$PROBLEM_NAME.sas
@@ -46,7 +42,6 @@ SAS_PLUS=$PROBLEM_NAME.sasp
 FD_DIR=~/repos/downward
 
 # lm_ff_syn = LAMA/FF synergy
-
 # '--heuristic "hlm=lmcut(lm_rhw(reasonable_orders=true,lm_cost_type=2,cost_type=2))"
 #          --search "lazy_wastar([hlm],preferred=[hlm],w=2)"'
 
@@ -56,38 +51,22 @@ rm -f $PROBLEM_NAME.*.log
 rm -f $PROBLEM_NAME.plan*
 rm -f $SAS
 rm -f $SAS_PLUS
-rm -f elapsed.time
-rm -f output
-rm -f output.sas
-rm -f sas_plan.*
-rm -f plan_numbers_and_cost
-rm -f downward.tmp.*
 
 TRANSLATE=$FD_DIR/src/translate/translate.py
 PREPROCESS=$FD_DIR/src/preprocess/preprocess # < OUTPUT.SAS
 SEARCH_DIR=$FD_DIR/src/search
 SEARCH="$SEARCH_DIR/downward $OPTIONS"
 
-if [ -e $2 ]
-then
-    DOMAIN=$2
-elif [ -e domain.pddl ]
-then
-    DOMAIN=domain.pddl
-elif [ -e $PROBLEM_NUM-domain.pddl ]
-then
-    DOMAIN=$PROBLEM_NUM-domain.pddl
-else
-    DOMAIN=
-fi
-
-
 echo $'\x1b[34;1m'---- process $PPID started -----------------------------
-echo PROBLEM_NAME:   $PROBLEM_NAME
-echo DOMAIN:         $DOMAIN
-echo SEARCH COMMAND: $SEARCH
+echo "MAX MEM(MB):    $MEMORY_USAGE"
+echo "MAX TIME(sec):  $TIME_LIMIT"
+echo "PROBLEM_NAME:   $PROBLEM_NAME"
+echo "DOMAIN:         $DOMAIN"
+echo "SEARCH COMMAND: $SEARCH"
 echo --------------------------------------------------------$'\x1b[0m'
 
+TMPDIR=`mktemp -d`
+pushd $TMPDIR
 
 $TRANSLATE $DOMAIN $PDDL >& $PROBLEM_NAME.translate.log
 echo Translation Finished
@@ -102,7 +81,6 @@ echo Preprocessing Finished
 mv output $SAS_PLUS
 
 $SEARCH < $SAS_PLUS >& $PROBLEM_NAME.search.log
-ERROR=$?
 
 mv elapsed.time $PROBLEM_NAME.time
 mv plan_numbers_and_cost $PROBLEM_NAME.cost
@@ -122,4 +100,9 @@ else
 fi
 echo --------------------------------------------------------$'\x1b[0m'
 
-exit $ERROR
+popd
+
+trap "rm -rfv $TMPDIR" SIGINT
+trap "rm -rfv $TMPDIR" EXIT
+
+exit
