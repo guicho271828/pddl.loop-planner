@@ -6,6 +6,7 @@
 (in-package :cl-user)
 (defpackage pddl.loop-planner-test
   (:use :cl
+        :repl-utilities
         :iterate
 	:alexandria
         :osicat
@@ -20,14 +21,11 @@
   (:shadow :maximize :minimize))
 (in-package :pddl.loop-planner-test)
 
+(package-optimize-setting)
+(optimize*)
+
 (def-suite :pddl.loop-planner :in :pddl)
 (in-suite :pddl.loop-planner)
-
-(defvar loop-plan-results
-  (make-hash-table))
-
-(defvar parallelized-loop-plan-results
-  (leaf))
 
 (defvar domain-directory
   (asdf:system-relative-pathname
@@ -51,13 +49,12 @@
                      #'muffle-warning))
        (parse-file ppath)))))
 
-(defun %make-plan (domain problem path)
+(defun %make-plan (path)
   (let ((*package* (find-package :pddl.instances)))
-    (pddl-plan :domain domain
-               :problem problem
-               :path path)))
+    (pddl-plan :path path)))
 
 (defvar *rb-lock* (make-lock "Red Black Tree lock"))
+(defvar parallelized-loop-plan-results (leaf))
 (defun %rb-queue-safe (x xc)
   (with-lock-held (*rb-lock*)
     (setf parallelized-loop-plan-results
@@ -72,7 +69,7 @@
 (defvar *print-lock* (make-lock "IO Stream lock"))
 (defvar *shared-output* *standard-output*)
 (defun sleep-and-say-hi ()
-  (sleep (random 3))
+  (sleep (random 1.5))
   (with-lock-held (*print-lock*)
     (format *shared-output* "~%Hi! I am ~a !" (current-thread)))
   t)
@@ -89,7 +86,7 @@
 
 (defun sleep-and-say-hi-limited ()
   (with-limited-cores ()
-    (sleep (random 3))
+    (sleep (random 1.5))
     (with-lock-held (*print-lock*)
       (format *shared-output* "~%Hi! I am ~a !" (current-thread)))
     t))
@@ -107,6 +104,8 @@
       (pass))))
 
 (defvar *result-lock* (make-lock "Result lock"))
+(defvar loop-plan-results
+  (make-hash-table))
 (defun test-problem-and-get-plan ()
   (let ((ppath (random-elt problem-pathnames)))
     (with-limited-cores (300)
@@ -114,31 +113,36 @@
         (format *shared-output*
                 "~%Thread ~a Solving ~a ..."
                 (thread-name (current-thread)) (pathname-name ppath)))
-      (let* ((domain cell-assembly)
-             (problem (%make-problem ppath))
+      (let* ((*domain* cell-assembly)
+             (*problem* (%make-problem ppath))
              (plans
               (mapcar
-               (curry #'%make-plan domain problem)
+               #'%make-plan
                (test-problem ppath domain-pathname :stream nil))))
         
         (with-lock-held (*result-lock*)
-          (setf (gethash problem loop-plan-results) plans))
+          (setf (gethash *problem* loop-plan-results) plans))
         
         (dolist (plan plans)
-          (let* ((seq (sequencial-length plan problem domain))
+          (let* ((seq (sequencial-length plan))
                  (par (parallel-length plan))
-                 (base-count (count-objects problem base-type))
+                 (base-count (count-objects *problem* base-type))
                  (time-per-base (/ par base-count)))
             
             ;; (with-lock-held (*test-lock*)
             ;;   (is (<= par seq))
             ;;   (is (< 1 base-count)))
             (with-lock-held (*print-lock*)
-              (format
-               *shared-output* "~%~{~10<~a~>~}~%~{~10<~5,2f~>~}"
-               '(seq. par. base time/base seq./par.)
-               (list seq par base-count time-per-base (/ seq par))))
-            (%rb-queue-safe time-per-base (list plan problem))))))))
+              (terpri *shared-output*)
+              (pprint-logical-block (*shared-output*
+                                     nil
+                                     :per-line-prefix
+                                     (thread-name (current-thread)))
+                (format
+                 *shared-output* "~%~{~10<~a~>~}~%~{~10<~5,2f~>~}"
+                 '(seq. par. base time/base seq./par.)
+                 (list seq par base-count time-per-base (/ seq par)))))
+            (%rb-queue-safe time-per-base (list plan *problem*))))))))
 
 (test (get-plan-1)
   (finishes
@@ -148,7 +152,9 @@
   (let (threads (low 0) (high 40))
     (restart-return ((destroy-all-threads
                       (lambda ()
-                        (mapcar #'destroy-thread threads)
+                        (dolist (th threads)
+                          (when (thread-alive-p th)
+                            (destroy-thread th)))
                         nil)))
       (do-restart ((run-20-times-more
                     (lambda ()
@@ -157,7 +163,15 @@
         (iter (for i from low below high)
               (push (make-thread
                      #'test-problem-and-get-plan
-                     :name (format nil "Test ~4:<#~a~>" i))
+                     :name (format nil "~4@<#~a~>" i))
                     threads))
-        (mapcar #'join-thread threads)))))
+        (mapc #'join-thread threads)
+        (multiple-value-bind (content value)
+            (rb-minimum parallelized-loop-plan-results)
+          (error "what to do next?
+problems searched          = ~a
+current minumum time/base  = ~5,2f
+corresponding plan,problem =
+  ~w"
+                 high value content))))))
 
