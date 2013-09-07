@@ -1,26 +1,6 @@
 (in-package :pddl.loop-planner)
 (cl-syntax:use-syntax :annot)
 
-@export
-(defun write-problem (problem
-                      &optional (basedir
-                                 (asdf:system-source-directory
-                                  :pddl.loop-planner)))
-  (let ((path 
-	 (merge-pathnames
-	  (let ((*print-escape* nil))
-	    (format nil "~a/~a.pddl"
-                    (name (domain problem))
-                    (name problem)))
-	  basedir)))
-    (ensure-directories-exist path :verbose t)
-    (print path)
-    (with-open-file (s path
-		       :direction :output
-		       :if-exists :supersede
-		       :if-does-not-exist :create)
-      (print-pddl-object problem s))))
-
 (defvar *fd-dir* (pathname-as-directory #p"~/repos/downward"))
 (defvar *options* "ipc seq-sat-lama-2011")
 (defvar *translate*

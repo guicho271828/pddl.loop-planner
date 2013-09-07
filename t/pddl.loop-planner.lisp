@@ -14,6 +14,7 @@
         :guicho-red-black-tree
         :bordeaux-threads
 	:pddl
+        :pddl.loop-detection
         :pddl.loop-planner
 	:pddl.scheduler
 	:pddl.instances
@@ -36,11 +37,37 @@
   (type (object cell-assembly-model2a-1 'b-0)))
 
 (defvar domain-pathname (merge-pathnames #p"domain.pddl" domain-directory))
-(defvar problem-pathnames
-  (remove-if (lambda (path)
-               (or (equal path domain-pathname)
-                   (not (string= "pddl" (pathname-type path)))))
-             (list-directory domain-directory)))
+
+(defparameter tmpdir
+  (merge-pathnames (string-downcase (gensym "cell-assebly")) #p"/tmp/"))
+
+(let ((unit-problem cell-assembly-model2a-1)
+      (unit-plan cell-assembly-model2a-1-6))
+  (let ((schedule (reschedule unit-plan
+                              :minimum-slack
+                              :verbose t)))
+    (multiple-value-bind (movements movements-indices)
+        (extract-movements 'b-0 schedule cell-assembly)
+      (mapcar (lambda (loop-plan)
+                (write-problem
+                 (build-steady-state-problem unit-problem
+                                             loop-plan
+                                             schedule
+                                             movements
+                                             movements-indices
+                                             base-type)
+                 tmpdir))
+              (time (exploit-loopable-steady-states
+                     movements
+                     (exploit-steady-states movements)
+                     :verbose nil))))))
+
+(defparameter problem-pathnames
+  (remove-if-not (lambda (path)
+                   (string= "pddl" (pathname-type path)))
+                 (list-directory
+                  (merge-pathnames "CELL-ASSEMBLY"
+                                   (pathname-as-directory tmpdir)))))
 
 (defun %make-problem (ppath)
   (let ((*package* (find-package :pddl.instances)))
@@ -82,7 +109,6 @@
     (join-thread t1)
     (join-thread t2)
     (pass "~%finished!")))
-
 
 (defun sleep-and-say-hi-limited ()
   (with-limited-cores ()
@@ -147,6 +173,12 @@
 (test (get-plan-1)
   (finishes
     (test-problem-and-get-plan)))
+
+(format t "~2%
+***************************************~3%
+  For more parallelized results, run ~w .~3%
+***************************************~2%"
+        '(get-plans))
 
 (defun get-plans ()
   (let (threads (low 0) (high 40))
