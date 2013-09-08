@@ -172,13 +172,12 @@
 
 (test (get-plan-1)
   (finishes
-    (test-problem-and-get-plan)))
-
-(format t "~2%
+    (test-problem-and-get-plan))
+  (format t "~2%
 ***************************************~3%
   For more parallelized results, run ~w .~3%
 ***************************************~2%"
-        '(get-plans))
+          '(get-plans)))
 
 (defun get-plans ()
   (let (threads (low 0) (high 40))
