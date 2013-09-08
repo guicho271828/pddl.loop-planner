@@ -186,10 +186,12 @@ It takes a long time (> around 4 min), please wait...")
 ***************************************~3%
   For more parallelized results, run ~w .~3%
 ***************************************~2%"
-          '(get-plans)))
+          '(progn
+            (in-package :pddl.loop-planner-test)
+            (get-plans))))
 
-(defun get-plans ()
-  (let (threads (low 0) (high 40))
+(defun get-plans (&optional (howmany 40))
+  (let (threads (low 0) (high howmany))
     (restart-return ((destroy-all-threads
                       (lambda ()
                         (dolist (th threads)
