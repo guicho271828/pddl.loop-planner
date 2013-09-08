@@ -25,6 +25,11 @@
 (package-optimize-setting)
 (optimize*)
 
+#+sbcl
+(declaim (sb-ext:muffle-conditions sb-ext:compiler-note))
+#+sbcl
+(declaim (sb-ext:muffle-conditions warning))
+
 (def-suite :pddl.loop-planner :in :pddl)
 (in-suite :pddl.loop-planner)
 
@@ -57,10 +62,14 @@
                                              movements-indices
                                              base-type)
                  tmpdir))
-              (time (exploit-loopable-steady-states
-                     movements
-                     (exploit-steady-states movements)
-                     :verbose nil))))))
+              (progn
+                (format t "~3%Exploiting loopable steady-states from the movements.
+It takes a long time (> around 4 min), please wait...")
+                (sleep 2)
+                (time (exploit-loopable-steady-states
+                       movements
+                       (exploit-steady-states movements)
+                       :verbose :modest)))))))
 
 (defparameter problem-pathnames
   (remove-if-not (lambda (path)
