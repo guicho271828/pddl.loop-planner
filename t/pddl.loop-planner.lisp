@@ -11,6 +11,7 @@
 	:alexandria
         :osicat
         :guicho-utilities
+        :guicho-utilities.threading
         :guicho-red-black-tree
         :bordeaux-threads
 	:pddl
@@ -102,8 +103,6 @@ It takes a long time (> around 4 min), please wait...")
                   x
                   parallelized-loop-plan-results))))))
 
-(defvar *print-lock* (make-lock "IO Stream lock"))
-(defvar *shared-output* *standard-output*)
 (defun sleep-and-say-hi ()
   (sleep (random 1.5))
   (with-lock-held (*print-lock*)

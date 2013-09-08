@@ -19,8 +19,9 @@
   :depends-on (:pddl
                :pddl.scheduler
                :pddl.loop-detection
+               :guicho-utilities.threading
                :bordeaux-threads
-               :bt-semaphore
+               :lparallel
                :optima
                :iterate
                :alexandria
@@ -30,7 +31,6 @@
                (:module "src"
                 :components
                 ((:file "planner")
-                 (:file "threads")
                  (:file "plan-attributes"))
                 :depends-on ("src/package")))
   :description ""
