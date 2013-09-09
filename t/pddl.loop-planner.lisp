@@ -140,7 +140,9 @@ It takes a long time (> around 4 min), please wait...~%")
 (defvar loop-plan-results (make-hash-table))
 
 (defvar *workers* nil)
-(defun test-problem-and-get-plan (ppath)
+(defun test-problem-and-get-plan (ppath &key
+                                  (memory 200000000)
+                                  (time-limit 15))
   (with-lock-held (*print-lock*)
     (format *shared-output*
             "~%Thread ~a Solving ~a ..."
@@ -151,7 +153,10 @@ It takes a long time (> around 4 min), please wait...~%")
          (plans
           (mapcar
            #'%make-plan
-           (test-problem ppath domain-pathname :stream nil))))
+           (test-problem ppath domain-pathname
+                         :stream nil
+                         :memory memory
+                         :time-limit time-limit))))
 
     (with-lock-held (*result-lock*)
       (setf (gethash *problem* loop-plan-results) plans))
@@ -188,11 +193,32 @@ It takes a long time (> around 4 min), please wait...~%")
             (in-package :pddl.loop-planner-test)
             (get-plans)))))
 
-(defun get-plans (&optional (howmany 40))
+(defun query-integer ()
+  (loop
+     (format *query-io* "~%Input a positive integer. : ")
+     (let ((read (read *query-io*)))
+       (when (and (integerp read) (plusp read))
+         (return (list read))))))
+
+(defun get-plans (&key
+                  (howmany 40)
+                  (memory 200000000) ;; 200 MB
+                  (time-limit 15))
   (let ((total 0))
     (restart-return ((finish (lambda () nil)))
-      (do-restart ((run-20-times-more
-                    (lambda () (setf howmany 20))))
+      (do-restart ((run-more
+                    (lambda (n) (setf howmany n))
+                    :interactive-function #'query-integer)
+                   (set-search-time
+                    (lambda (n)
+                      (setf howmany 0)
+                      (setf time-limit n))
+                    :interactive-function #'query-integer)
+                   (set-max-memory
+                    (lambda (n)
+                      (setf howmany 0)
+                      (setf memory n))
+                    :interactive-function #'query-integer))
         (incf total howmany)
         (pdotimes (i howmany)
           (test-problem-and-get-plan
@@ -204,6 +230,8 @@ It takes a long time (> around 4 min), please wait...~%")
 problems searched          = ~a
 current minumum time/base  = ~5,2f
 corresponding plan,problem =
-  ~w"
-                 total value content))))))
+  ~w
+Current time limit         = ~a
+Current memory limit       = ~a"
+                 total value content time-limit memory))))))
 
