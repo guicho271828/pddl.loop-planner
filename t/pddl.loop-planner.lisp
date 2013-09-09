@@ -133,8 +133,9 @@ It takes a long time (> around 4 min), please wait...~%")
 (defun %shorthand-pathname (path &optional (within 20))
   (let* ((str (concatenate 'string (pathname-name path) "." (pathname-type path)))
          (len (length str))
-         (back (clamp (- len within) 0 within)))
-    (concatenate 'string "..." (subseq str back len))))
+         (back (- len within))
+         (start (if (minusp back) 0 back)))
+    (concatenate 'string "..." (subseq str start len))))
 
 (defvar *result-lock* (make-lock "Result lock"))
 (defvar loop-plan-results (make-hash-table))
@@ -145,9 +146,8 @@ It takes a long time (> around 4 min), please wait...~%")
                                   (time-limit 15))
   (with-lock-held (*print-lock*)
     (format *shared-output*
-            "~%Thread ~a Solving ~a ..."
-            (current-thread)
-            (%shorthand-pathname ppath)))
+            "~%Solving ~a"
+            (%shorthand-pathname ppath 75)))
   (let* ((*domain* cell-assembly)
          (*problem* (%make-problem ppath))
          (plans
@@ -175,7 +175,7 @@ It takes a long time (> around 4 min), please wait...~%")
           (pprint-logical-block (*shared-output*
                                  nil
                                  :per-line-prefix
-                                 (princ-to-string (current-thread)))
+                                 (%shorthand-pathname ppath 13))
             (format
              *shared-output* "~%~{~10<~a~>~}~%~{~10<~5,2f~>~}"
              '(seq. par. base time/base seq./par.)
@@ -222,7 +222,9 @@ It takes a long time (> around 4 min), please wait...~%")
         (incf total howmany)
         (pdotimes (i howmany)
           (test-problem-and-get-plan
-           (random-elt problem-pathnames)))
+           (random-elt problem-pathnames)
+           :time-limit time-limit
+           :memory memory))
         
         (multiple-value-bind (content value)
             (rb-minimum parallelized-loop-plan-results)
