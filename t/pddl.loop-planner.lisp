@@ -180,7 +180,7 @@ It takes a long time (> around 4 min), please wait...~%")
              *shared-output* "~%~{~10<~a~>~}~%~{~10<~5,2f~>~}"
              '(seq. par. base time/base seq./par.)
              (list seq par base-count time-per-base (/ seq par)))))
-        (%rb-queue-safe time-per-base (list plan *problem*))))))
+        (%rb-queue-safe par (list plan *problem*))))))
 
 (test (get-plan-1)
   (finishes
