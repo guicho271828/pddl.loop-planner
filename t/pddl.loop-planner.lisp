@@ -182,17 +182,6 @@ It takes a long time (> around 4 min), please wait...~%")
              (list seq par base-count time-per-base (/ seq par)))))
         (%rb-queue-safe par (list plan *problem*))))))
 
-(test (get-plan-1)
-  (finishes
-    (test-problem-and-get-plan (random-elt problem-pathnames))
-  (format t "~2%
-***************************************~3%
-  For more parallelized results, run ~w .~3%
-***************************************~2%"
-          '(progn
-            (in-package :pddl.loop-planner-test)
-            (get-plans)))))
-
 (defun query-integer ()
   (loop
      (format *query-io* "~%Input a positive integer. : ")
@@ -236,4 +225,20 @@ corresponding plan,problem =
 Current time limit         = ~a
 Current memory limit       = ~a"
                  total value content time-limit memory))))))
+
+
+(test (get-plan-1)
+  (finishes
+    (test-problem-and-get-plan (random-elt problem-pathnames))
+  (format t "~2%
+***************************************~3%
+  For more parallelized results, run ~%
+
+ (progn
+  (in-package :pddl.loop-planner-test)
+  (pddl.loop-planner-test::get-plans :howmany 10))
+
+~3%
+***************************************~2%"
+          )))
 
