@@ -48,30 +48,32 @@
 (defparameter tmpdir
   (merge-pathnames (string-downcase (gensym "cell-assebly")) #p"/tmp/"))
 
-(let ((unit-problem cell-assembly-model2a-1)
-      (unit-plan cell-assembly-model2a-1-6))
-  (let ((schedule (reschedule unit-plan
-                              :minimum-slack
-                              :verbose t)))
-    (multiple-value-bind (movements movements-indices)
-        (extract-movements 'b-0 schedule cell-assembly)
-      (mapcar (lambda (loop-plan)
-                (write-problem
-                 (build-steady-state-problem unit-problem
-                                             loop-plan
-                                             schedule
-                                             movements
-                                             movements-indices
-                                             base-type)
-                 tmpdir))
-              (progn
-                (format t "~3%Exploiting loopable steady-states from the movements.
+(pprint-logical-block (*standard-output* nil
+                                       :per-line-prefix ";Test Preparation process: ")
+  (let ((unit-problem cell-assembly-model2a-1)
+        (unit-plan cell-assembly-model2a-1-6))
+    (let ((schedule (reschedule unit-plan
+                                :minimum-slack
+                                :verbose nil)))
+      (multiple-value-bind (movements movements-indices)
+          (extract-movements 'b-0 schedule cell-assembly)
+        (mapcar (lambda (loop-plan)
+                  (write-problem
+                   (build-steady-state-problem unit-problem
+                                               loop-plan
+                                               schedule
+                                               movements
+                                               movements-indices
+                                               base-type)
+                   tmpdir))
+                (progn
+                  (format *standard-output*
+                          "~3%Exploiting loopable steady-states from the movements.
 It takes a long time (> around 4 min), please wait...~%")
-                (sleep 2)
-                (time (exploit-loopable-steady-states
-                       movements
-                       (exploit-steady-states movements)
-                       :verbose nil)))))))
+                  (time (exploit-loopable-steady-states
+                         movements
+                         (exploit-steady-states movements)
+                         :verbose nil))))))))
 
 (defparameter problem-pathnames
   (remove-if-not (lambda (path)
@@ -144,10 +146,6 @@ It takes a long time (> around 4 min), please wait...~%")
 (defun test-problem-and-get-plan (ppath &key
                                   (memory 200000000)
                                   (time-limit 15))
-  (with-lock-held (*print-lock*)
-    (format *shared-output*
-            "~%Solving ~a"
-            (%shorthand-pathname ppath 75)))
   (let* ((*domain* cell-assembly)
          (*problem* (%make-problem ppath))
          (plans
@@ -161,37 +159,34 @@ It takes a long time (> around 4 min), please wait...~%")
     (with-lock-held (*result-lock*)
       (setf (gethash *problem* loop-plan-results) plans))
 
-    (dolist (plan plans)
-      (let* ((seq (sequencial-length plan))
-             (par (parallel-length plan))
-             (base-count (count-objects *problem* base-type))
-             (time-per-base (/ par base-count)))
-
-        ;; (with-lock-held (*test-lock*)
-        ;;   (is (<= par seq))
-        ;;   (is (< 1 base-count)))
-        (with-lock-held (*print-lock*)
-          (terpri *shared-output*)
-          (pprint-logical-block (*shared-output*
-                                 nil
-                                 :per-line-prefix
-                                 (%shorthand-pathname ppath 13))
+    (with-lock-held (*print-lock*)
+      (terpri *shared-output*)
+      (pprint-logical-block (*shared-output*
+                             nil
+                             :per-line-prefix
+                             (format nil "~a : "
+                                     (%shorthand-pathname ppath 13)))
+        (format *shared-output*
+                "~%Solved ~a~%"
+                (%shorthand-pathname ppath 75))
+        (format *shared-output*
+                "~%~{~10@<~a~>~^ | ~}"
+                '(sequencial parallel base time/base seq./par.))
+        (format *shared-output*
+                "~%~{~10,,,'-@<~a~>~^-+-~}"
+                '(- - - - -))
+        (dolist (plan plans)
+          (let* ((seq (sequencial-length plan))
+                 (par (parallel-length plan))
+                 (base-count (count-objects *problem* base-type))
+                 (time-per-base (/ par base-count)))
             (format
-             *shared-output* "~%~{~10<~a~>~}~%~{~10<~5,2f~>~}"
-             '(seq. par. base time/base seq./par.)
-             (list seq par base-count time-per-base (/ seq par)))))
-        (%rb-queue-safe par (list plan *problem*))))))
-
-(test (get-plan-1)
-  (finishes
-    (test-problem-and-get-plan (random-elt problem-pathnames))
-  (format t "~2%
-***************************************~3%
-  For more parallelized results, run ~w .~3%
-***************************************~2%"
-          '(progn
-            (in-package :pddl.loop-planner-test)
-            (get-plans)))))
+             *shared-output* "~%~{~10<~5,2f~>~^ | ~}"
+             (list seq par base-count time-per-base (/ seq par)))
+            (%rb-queue-safe par (list plan *problem*))))
+        (format *shared-output*
+                "~%~{~10,,,'-@<~a~>~^-+-~}"
+                '(- - - - -))))))
 
 (defun query-integer ()
   (loop
@@ -229,11 +224,27 @@ It takes a long time (> around 4 min), please wait...~%")
         (multiple-value-bind (content value)
             (rb-minimum parallelized-loop-plan-results)
           (error "what to do next?
-problems searched          = ~a
-current minumum time/base  = ~5,2f
-corresponding plan,problem =
+Problems searched ~40t= ~a
+Current min. parallelized cost ~40t= ~5,2f
+Corresponding plan,problem ~40t=
   ~w
-Current time limit         = ~a
-Current memory limit       = ~a"
+Current time limit ~40t= ~a
+Current memory limit ~40t= ~a"
                  total value content time-limit memory))))))
+
+
+(test (get-plan-1)
+  (finishes
+    (test-problem-and-get-plan (random-elt problem-pathnames))
+  (format t "~2%
+***************************************~3%
+  For more parallelized results, run ~%
+
+ (progn
+  (in-package :pddl.loop-planner-test)
+  (pddl.loop-planner-test::get-plans :howmany 10))
+
+~3%
+***************************************~2%"
+          )))
 
