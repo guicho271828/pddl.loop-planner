@@ -14,6 +14,7 @@
   :depends-on (:pddl.instances
 	       :pddl.loop-planner
                :pddl-test
+               :repl-utilities
                :cl-test-more)
   :components ((:module "t"
                 :components
