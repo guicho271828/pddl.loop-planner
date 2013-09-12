@@ -2,7 +2,9 @@
 (cl-syntax:use-syntax :annot)
 
 (defvar *fd-dir* (pathname-as-directory #p"~/repos/downward"))
-(defvar *options* "ipc seq-sat-lama-2011")
+
+@export
+(defvar *fd-options* "ipc seq-sat-lama-2011")
 (defvar *translate*
   (merge-pathnames "src/translate/translate.py" *fd-dir*))
 (defvar *preprocess*
@@ -22,7 +24,7 @@
 		     domain
 		     &key
 		     (stream *standard-output*)
-		     (options *options*)
+		     (options *fd-options*)
 		     (memory 200000)
 		     (time-limit 10))
   (run `(,*test-problem* -m ,memory
