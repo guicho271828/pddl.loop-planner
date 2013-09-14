@@ -21,12 +21,12 @@
 
 @export
 (defun test-problem (problem
-		     domain
-		     &key
-		     (stream *standard-output*)
-		     (options *fd-options*)
-		     (memory 200000)
-		     (time-limit 10))
+                     domain
+                     &key
+                     (stream *standard-output*)
+                     (options *fd-options*)
+                     (memory 200000)
+                     (time-limit 10))
   (run `(,*test-problem* -m ,memory
                          -t ,time-limit
                          -o ,options
@@ -37,7 +37,7 @@
   (run `(pipe (find ,(pathname-directory-pathname problem)
                     -maxdepth 1
                     -mindepth 1)
-	      (grep (,(pathname-name problem) .plan)))
+              (grep (,(pathname-name problem) .plan)))
        :show t
        :output :lines
        :on-error nil))
