@@ -28,6 +28,8 @@ with the following arguments.
   options : a string which will be the search and heuristic options to downward.
   memory : number[Byte], given to ulimit -m
   time-limit : number[sec.], given to ulimit -t
+
+returns a list of pathnames of plan files.
 "
 (defun test-problem (problem
                      domain
