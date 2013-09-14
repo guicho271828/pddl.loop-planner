@@ -20,6 +20,15 @@
   (merge-pathnames "test-problem.sh" *system*))
 
 @export
+@doc " Runs
+   {(asdf:system-source-directory :pddl.loop-planner)}/test-problem.sh
+with the following arguments.
+
+  problem, domain : the pathnames of pddl files.
+  options : a string which will be the search and heuristic options to downward.
+  memory : number[Byte], given to ulimit -m
+  time-limit : number[sec.], given to ulimit -t
+"
 (defun test-problem (problem
                      domain
                      &key
