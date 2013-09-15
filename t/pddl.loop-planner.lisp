@@ -29,8 +29,6 @@
 
 #+sbcl
 (declaim (sb-ext:muffle-conditions sb-ext:compiler-note))
-#+sbcl
-(declaim (sb-ext:muffle-conditions warning))
 
 (def-suite :pddl.loop-planner :in :pddl)
 (in-suite :pddl.loop-planner)
