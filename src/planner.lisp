@@ -45,11 +45,12 @@ returns a list of pathnames of plan files.
        :show t
        :output stream
        :on-error nil)
-  (run `(pipe (find ,(pathname-directory-pathname problem)
-                    -maxdepth 1
-                    -mindepth 1)
-              (grep (,(pathname-name problem) .plan)))
-       :show t
-       :output :lines
-       :on-error nil))
+  (sort (run `(pipe (find ,(pathname-directory-pathname problem)
+                          -maxdepth 1
+                          -mindepth 1)
+                    (grep (,(pathname-name problem) .plan)))
+             :show t
+             :output :lines
+             :on-error nil)
+        #'string<))
 
