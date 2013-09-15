@@ -60,7 +60,7 @@
                (collect f))))
     (dolist (f futures)
       (force f)
-      (format t "~%thread ~w joined!" (thread-name f))
+      (format t "~%joined!" )
       (pass))))
 
 ;;;; main tests
