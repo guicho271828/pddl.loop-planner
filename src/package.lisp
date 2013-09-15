@@ -3,5 +3,6 @@
   (:use :cl :pddl :pddl.scheduler :pddl.loop-detection
         :optima :iterate :alexandria :osicat :inferior-shell
         :guicho-utilities.threading
+        :annot.doc
         :lparallel)
   (:shadow :minimize :maximize))
