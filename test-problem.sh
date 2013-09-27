@@ -22,8 +22,7 @@ done
 
 shift $(($OPTIND - 1))
 
-ulimit -m $MEMORY_USAGE
-ulimit -t $TIME_LIMIT
+ulimit -v $MEMORY_USAGE -t $TIME_LIMIT
 
 PDDL=$(realpath $1)
 DOMAIN=$(realpath $2)
