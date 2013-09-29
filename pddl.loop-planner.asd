@@ -31,7 +31,9 @@
                (:module "src"
                 :components
                 ((:file "planner")
-                 (:file "plan-attributes"))
+                 (:file "plan-attributes")
+                 (:file "utils")
+                 (:file "main"))
                 :depends-on ("src/package")))
   :description ""
   :long-description
