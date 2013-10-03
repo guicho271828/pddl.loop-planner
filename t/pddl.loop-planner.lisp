@@ -21,7 +21,7 @@
 	:pddl.scheduler
 	:pddl.instances
         :fiveam)
-  (:shadow :maximize :minimize))
+  (:shadow :place :maximize :minimize :force))
 (in-package :pddl.loop-planner-test)
 
 (package-optimize-setting)
@@ -57,7 +57,7 @@
                (print f)
                (collect f))))
     (dolist (f futures)
-      (force f)
+      (lparallel:force f)
       (format t "~%joined!" )
       (pass))))
 

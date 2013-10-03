@@ -33,6 +33,7 @@
                 ((:file "planner")
                  (:file "plan-attributes")
                  (:file "utils")
+                 (:file "handler")
                  (:file "main"))
                 :depends-on ("src/package")))
   :description ""

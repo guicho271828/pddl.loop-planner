@@ -7,5 +7,5 @@
 @export
 (defun my-handler (ss)
   (when (< *base-limit* (length ss))
+    (break+ ss *base-limit*)
     (invoke-restart (find-restart 'skip-this))))
-  
