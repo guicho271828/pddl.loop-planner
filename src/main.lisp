@@ -54,11 +54,13 @@
 (defun get-plans (base-type problem-pathnames &key
                   (howmany 40)
                   (memory 200000000) ;; 200 MB
-                  (time-limit 15))
+                  (time-limit 15)
+                  lazy)
   (let ((total 0)
         (all-problem-searched-once-p nil)
         (rb-lock (make-lock "Red Black Tree lock"))
         (rb-queue (leaf))
+        (lazy-paths-lock (make-lock "Lazy paths lock"))
         (result-lock (make-lock "Result lock"))
         (loop-plan-results (make-hash-table)))
     (restart-return ((finish (lambda ()
@@ -77,6 +79,7 @@
                       (setf memory n))
                     :interactive-function #'query-integer))
         (pdotimes (i howmany)
+          @ignorable i
           (handler-return ((type-error
                             (lambda (c)
                               @ignore c
@@ -85,7 +88,10 @@
             (multiple-value-bind (*problem* plans analyses)
                 (test-problem-and-get-plan
                  base-type
-                 (elt problem-pathnames (+ total i))
+                 (if lazy
+                     (with-lock-held (lazy-paths-lock)
+                       (fpop problem-pathnames))
+                     (elt problem-pathnames (+ total i)))
                  :time-limit time-limit
                  :memory memory)
               (with-lock-held (result-lock)
@@ -118,8 +124,13 @@ Current memory limit ~40t= ~a"
                                         &key
                                         (howmany 40)
                                         (memory 200000000)
-                                        (time-limit 15))
+                                        (time-limit 15)
+                                        lazy)
   (declare (ignorable howmany memory time-limit))
   (multiple-value-bind (paths base-type)
-      (exploit-loop-problems unit-plan base-object)
+      (if lazy
+          (exploit-loop-problems-lazy unit-plan base-object)
+          (exploit-loop-problems unit-plan base-object))
     (apply #'get-plans base-type paths rest)))
+
+

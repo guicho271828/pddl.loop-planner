@@ -74,9 +74,23 @@
        :howmany 1)))
   (format t "~2%
 ***************************************~3%
-  For more parallelized results, run ~%
+  For more parallelized results, run
 
-~3%
+    (exploit-and-solve-loop-problems
+       cell-assembly-model2b-1-6 'b-0
+       :howmany 5)   
+
 ***************************************~2%"
           ))
+
+
+(test (get-plan-1-lazy)
+  (finishes
+    (handler-bind ((simple-error
+                    (lambda (c)
+                      (when-let ((re (find-restart 'finish c)))
+                        (invoke-restart re)))))
+      (exploit-and-solve-loop-problems
+       cell-assembly-model2a-1-6 'b-0
+       :howmany 1 :lazy t))))
 

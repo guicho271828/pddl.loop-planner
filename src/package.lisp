@@ -8,4 +8,5 @@
         :bordeaux-threads
         :annot.doc
         :lparallel)
-  (:shadow :minimize :maximize))
+  (:shadow :minimize :maximize)
+  (:shadowing-import-from :pddl.loop-detection :force))
