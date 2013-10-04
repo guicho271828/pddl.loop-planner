@@ -1,4 +1,9 @@
 #! /bin/bash
+REALPATH=$(which realpath)
+if [[ $REALPATH == "" ]]
+then
+    REALPATH="readlink -e "
+fi
 
 TIME_LIMIT=1800
 MEMORY_USAGE=1000000
@@ -24,8 +29,8 @@ shift $(($OPTIND - 1))
 
 ulimit -v $MEMORY_USAGE -t $TIME_LIMIT
 
-PDDL=$(realpath $1)
-DOMAIN=$(realpath $2)
+PDDL=$($REALPATH $1)
+DOMAIN=$($REALPATH $2)
 
 if [[ $PDDL =~ .*\.pddl ]]
 then
