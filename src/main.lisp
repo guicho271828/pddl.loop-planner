@@ -103,23 +103,24 @@
                                      (setf all-problem-searched-once-p t)
                                      nil)))
                                (elt problem-pathnames (+ (force *total*) i))))))
-            
-            (multiple-value-bind (*problem* plans analyses)
-                (test-problem-and-get-plan
-                 base-type
-                 path
-                 :time-limit (force *time-limit*)
-                 :memory (force *memory*))
-              (with-lock-held (result-lock)
-                (setf (gethash *problem* loop-plan-results) plans))
-              (iter (for plan in plans)
-                    (for (seq par base-count time-per-base) in analyses)
-                    (with-lock-held (rb-lock)
-                      (setf rb-queue
-                            (rb-insert
-                             rb-queue par
-                             (cons (list plan *problem*)
-                                   (rb-member par rb-queue)))))))
+            (ematch path
+              ((list path ss)
+               (multiple-value-bind (*problem* plans analyses)
+                   (test-problem-and-get-plan
+                    base-type
+                    path
+                    :time-limit (force *time-limit*)
+                    :memory (force *memory*))
+                 (with-lock-held (result-lock)
+                   (setf (gethash *problem* loop-plan-results) plans))
+                 (iter (for plan in plans)
+                       (for (seq par base-count time-per-base) in analyses)
+                       (with-lock-held (rb-lock)
+                         (setf rb-queue
+                               (rb-insert
+                                rb-queue par
+                                (cons (list plan *problem* ss)
+                                      (rb-member par rb-queue)))))))))
             (incf not-searched-actually)))
         (pause-and-report 
          rb-queue 
