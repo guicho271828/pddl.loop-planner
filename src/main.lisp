@@ -17,7 +17,8 @@
       (if lazy
           (exploit-loop-problems-lazy unit-plan base-object)
           (exploit-loop-problems unit-plan base-object))
-    (apply #'get-plans base-type paths rest)))
+    (values (apply #'get-plans base-type paths rest)
+            base-type)))
 
 @export
 (defvar *total*)
@@ -86,8 +87,7 @@
         (result-lock (make-lock "Result lock"))
         (loop-plan-results (make-hash-table)))
     (restart-return ((finish (lambda ()
-                               (multiple-value-list
-                                (rb-minimum rb-queue)))))
+                               (rb-minimum rb-queue))))
       (do-restart ((continue (lambda ())))
         (pdotimes (i (force *howmany*))
           @ignorable i
