@@ -9,9 +9,9 @@
                                         (howmany 40)
                                         (memory 200000000)
                                         (time-limit 15)
-                                        (base-limit *base-limit*)
+                                        (base-limit MOST-POSITIVE-FIXNUM)
                                         lazy
-                                        handler)
+                                        (handler #'my-handler))
   (declare (ignorable howmany memory base-limit time-limit lazy handler))
   (multiple-value-bind (paths base-type)
       (if lazy
@@ -19,19 +19,26 @@
           (exploit-loop-problems unit-plan base-object))
     (apply #'get-plans base-type paths rest)))
 
+@export
+(defvar *total*)
+@export
+(defvar *howmany*)
+@export
+(defvar *memory*)
+@export
+(defvar *time-limit*)
 
 ;;;; shell function that serves interactive feature
 (defun get-plans (base-type problem-pathnames &key
                   (howmany 40)
                   (memory 200000000)
                   (time-limit 15)
-                  (base-limit *base-limit*)
+                  (base-limit MOST-POSITIVE-FIXNUM)
                   lazy
-                  (handler #'identity))
-  (let ((total 0)
-        (*base-limit* base-limit))
+                  (handler #'my-handler))
+  (let ((total 0))
     (do-restart ((run-more
-                  (lambda (n) (setf howmany n))
+                  (lambda (n) (setf howmany n) (continue))
                   :interactive-function #'query-integer)
                  (set-search-time
                   (lambda (n)
@@ -46,19 +53,33 @@
                  (set-base-limit
                   (lambda (n)
                     (setf howmany 0)
-                    (setf *base-limit* n))
+                    (setf base-limit n))
                   :interactive-function #'query-integer))
       (incf total howmany)
-      (get-plans-inner base-type handler howmany
-                       lazy memory problem-pathnames
-                       time-limit total))))
+      (let* ((set-special (lambda (worker-loop)
+                            (llet ((*total* total)
+                                   (*howmany* howmany)
+                                   (*memory* memory)
+                                   (*time-limit* time-limit)
+                                   (*base-limit* base-limit))
+                              (funcall worker-loop))))
+             (*kernel* (make-kernel
+                        (kernel-worker-count)
+                        ;; :bindings `((*standard-output* . ,*standard-output*)
+                        ;;             (*error-output* . ,*error-output*)
+                        ;;             (*trace-output* . ,*trace-output*))
+                        :context set-special))) 
+        (funcall set-special
+                 (lambda ()
+                   (get-plans-inner base-type handler
+                                    lazy problem-pathnames)))))))
 
 
-
-(defun get-plans-inner (base-type handler howmany
-                        lazy memory problem-pathnames
-                        time-limit total)
+(defun get-plans-inner (base-type handler lazy problem-pathnames)
+  (handler-bind ((steady-state-condition handler))
+    (forcef problem-pathnames))
   (let ((all-problem-searched-once-p nil)
+        (not-searched-actually 0)
         (rb-lock (make-lock "red black tree lock"))
         (rb-queue (leaf))
         (lazy-paths-lock (make-lock "Lazy paths lock"))
@@ -67,43 +88,45 @@
     (restart-return ((finish (lambda ()
                                (multiple-value-list
                                 (rb-minimum rb-queue)))))
-      (pdotimes (i howmany)
-        @ignorable i
-        (handler-return ((type-error
-                          (lambda (c)
-                            @ignore c
-                            (setf all-problem-searched-once-p t)
-                            nil)))
-          (multiple-value-bind (*problem* plans analyses)
-              (test-problem-and-get-plan
-               base-type
-               (if lazy
-                   (with-lock-held (lazy-paths-lock)
-                     (handler-bind ((steady-state-condition
-                                     (lambda (c)
-                                       (funcall handler
-                                                (steady-state c)))))
-                       (fpop problem-pathnames)))
-                   (elt problem-pathnames (+ total i)))
-               :time-limit time-limit
-               :memory memory)
-            (with-lock-held (result-lock)
-              (setf (gethash *problem* loop-plan-results) plans))
-            (iter (for plan in plans)
-                  (for (seq par base-count time-per-base) in analyses)
-                  (with-lock-held (rb-lock)
-                    (setf rb-queue
-                          (rb-insert
-                           rb-queue par
-                           (cons (list plan *problem*)
-                                 (rb-member par rb-queue)))))))))
-      (pause-and-report 
-       rb-queue 
-       all-problem-searched-once-p
-       total time-limit memory))))
+      (do-restart ((continue (lambda ())))
+        (pdotimes (i (force *howmany*))
+          @ignorable i
 
-
-
+          (if-let ((path (if lazy
+                             (with-lock-held (lazy-paths-lock)
+                               (handler-bind ((steady-state-condition handler))
+                                 (fpop problem-pathnames)))
+                             (handler-return
+                                 ((type-error
+                                   (lambda (c)
+                                     (declare (ignore c))
+                                     (setf all-problem-searched-once-p t)
+                                     nil)))
+                               (elt problem-pathnames (+ (force *total*) i))))))
+            
+            (multiple-value-bind (*problem* plans analyses)
+                (test-problem-and-get-plan
+                 base-type
+                 path
+                 :time-limit (force *time-limit*)
+                 :memory (force *memory*))
+              (with-lock-held (result-lock)
+                (setf (gethash *problem* loop-plan-results) plans))
+              (iter (for plan in plans)
+                    (for (seq par base-count time-per-base) in analyses)
+                    (with-lock-held (rb-lock)
+                      (setf rb-queue
+                            (rb-insert
+                             rb-queue par
+                             (cons (list plan *problem*)
+                                   (rb-member par rb-queue)))))))
+            (incf not-searched-actually)))
+        (pause-and-report 
+         rb-queue 
+         all-problem-searched-once-p
+         (- (force *total*) not-searched-actually)
+         (force *time-limit*)
+         (force *memory*))))))
 
 
 (defun test-problem-and-get-plan (base-type ppath &key

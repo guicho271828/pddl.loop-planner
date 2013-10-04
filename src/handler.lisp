@@ -2,10 +2,15 @@
 (cl-syntax:use-syntax :annot)
 
 @export
-(defvar *base-limit* MOST-POSITIVE-FIXNUM)
+(defvar *base-limit*)
 
 @export
-(defun my-handler (ss)
-  (when (< *base-limit* (length ss))
-    (break+ ss *base-limit*)
-    (invoke-restart (find-restart 'skip-this))))
+(defun my-handler (c)
+  (let ((ss (steady-state c)))
+    ;; (break+ ss
+    ;;         (length ss)
+    ;;         (force *base-limit*)
+    ;;         (find-restart 'skip-this))
+    (if (< (force *base-limit*) (length ss))
+        (invoke-restart (find-restart 'wind-stack))
+        (continue))))
