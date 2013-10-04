@@ -34,7 +34,8 @@
                  (:file "plan-attributes")
                  (:file "utils")
                  (:file "handler")
-                 (:file "main"))
+                 (:file "main")
+                 (:file "validate"))
                 :depends-on ("src/package")))
   :description ""
   :long-description

@@ -1,0 +1,26 @@
+
+(in-package :pddl.loop-planner-test)
+(def-suite :pddl.loop-planner :in :pddl)
+(in-suite :pddl.loop-planner)
+
+(test validate
+  (finishes
+    (validate-plan (asdf:system-relative-pathname
+                    :pddl.loop-planner-test
+                    "t/domain.pddl")
+                   (asdf:system-relative-pathname
+                    :pddl.loop-planner-test
+                    "t/pfile1")
+                   (asdf:system-relative-pathname
+                    :pddl.loop-planner-test
+                    "t/pfile1.plan.1")))
+  (signals error
+    (validate-plan (asdf:system-relative-pathname
+                    :pddl.loop-planner-test
+                    "t/domain.pddl")
+                   (asdf:system-relative-pathname
+                    :pddl.loop-planner-test
+                    "t/pfile1")
+                   (asdf:system-relative-pathname
+                    :pddl.loop-planner-test
+                    "t/pfile1.plan.1.dummy"))))
