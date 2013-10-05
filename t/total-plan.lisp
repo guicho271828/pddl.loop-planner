@@ -15,7 +15,7 @@
 
 (defun benchmark ()
   (let ((dropbox (merge-pathnames #p"Dropbox/" (user-homedir-pathname))))
-    (with-open-file (*terminal-io*
+    (with-open-file (*standard-output*
                      (merge-pathnames "loop-planner.log" dropbox)
                      :direction :output
                      :if-does-not-exist :create
