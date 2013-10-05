@@ -1,6 +1,12 @@
 (in-package :pddl.loop-planner)
 (cl-syntax:use-syntax :annot)
 
+(defvar *initial-plan-fd-option*
+  (format nil "--heuristic hlm,hff=~
+                  lm_ff_syn(lm_rhw(reasonable_orders=true,lm_cost_type=2,cost_type=2)) ~
+               --search lazy_wastar([hff,hlm],preferred=[hff,hlm],w=2)"))
+
+
 @export
 (defun build-initial-plan (all-bases
                            base-type
@@ -18,7 +24,8 @@
         (lastcar
          (test-problem
           (write-problem initial-problem (mktemp :initial))
-          (path *domain*)))
+          (path *domain*)
+          :options *initial-plan-fd-option*))
         *domain*
         initial-problem)))
      initial-problem)))
