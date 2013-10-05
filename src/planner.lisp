@@ -36,11 +36,11 @@ returns a list of pathnames of plan files.
                      &key
                      (stream *standard-output*)
                      (options *fd-options*)
-                     (memory 200000)
-                     (time-limit 10))
-  (run `(,*test-problem* -m ,memory
-                         -t ,time-limit
-                         -o ,options
+                     memory
+                     time-limit)
+  (run `(,*test-problem* ,@(when memory `(-m ,memory))
+                         ,@(when time-limit `(-t ,time-limit))
+                         ,@(when options `(-o ,options))
                          ,problem ,domain)
        :show t
        :output stream
