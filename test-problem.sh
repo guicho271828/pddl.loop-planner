@@ -70,6 +70,8 @@ echo "SEARCH COMMAND: $SEARCH"
 echo --------------------------------------------------------$'\x1b[0m'
 
 TMPDIR=`mktemp -d`
+trap "rm -rfv $TMPDIR" SIGINT
+trap "rm -rfv $TMPDIR" EXIT
 pushd $TMPDIR
 
 $TRANSLATE $DOMAIN $PDDL >& $PROBLEM_NAME.translate.log
@@ -111,8 +113,5 @@ fi
 echo --------------------------------------------------------$'\x1b[0m'
 
 popd
-
-trap "rm -rfv $TMPDIR" SIGINT
-trap "rm -rfv $TMPDIR" EXIT
 
 exit
