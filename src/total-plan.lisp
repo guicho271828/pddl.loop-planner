@@ -17,8 +17,9 @@
       (values (build-initial-plan      all-bases base-type 
                                        *problem* loop-problem ss)
               (build-intermediate-plan all-bases base-type
-                                        loop-plan loop-problem ss)
-              ;;(build-final-plan        all-bases base-type loop-plan loop-problem ss)
+                                       loop-plan loop-problem ss)
+              (build-final-plan        all-bases base-type 
+                                       *problem* loop-problem ss)
               *problem*
               all-bases))))
 

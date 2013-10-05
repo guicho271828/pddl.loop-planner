@@ -11,7 +11,7 @@
                      :goal goal
                      :metric metric)
        (let* ((base-type-p (rcurry #'pddl-typep base-type))
-              (objects (categorize (break+ (objects/const unit-problem))
+              (objects (categorize (objects/const unit-problem)
                                    :key base-type-p))
               (objects/bases (gethash nil objects))
               (bases         (gethash t   objects))
