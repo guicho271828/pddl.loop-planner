@@ -8,9 +8,11 @@
 (defun validate-plan (domain problem plan &key
                       verbose
                       (stream *standard-output*))
-  (run (if verbose
-           `(,*validate* -v ,domain ,problem ,plan)
-           `(,*validate* ,domain ,problem ,plan))
-       :show t
-       :output stream))
+  (handler-return ((error (constantly nil)))
+    (run (if verbose
+             `(,*validate* -v ,domain ,problem ,plan)
+             `(,*validate* ,domain ,problem ,plan))
+         :show t
+         :output stream)
+    t))
 

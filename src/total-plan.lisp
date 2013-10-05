@@ -14,14 +14,20 @@
     (multiple-value-bind (*problem* all-bases)
         (build-total-problem howmany base-type unit-plan loop-problem)
       (write-problem *problem* tmpdir)
-      (values (build-initial-plan      all-bases base-type 
-                                       *problem* loop-problem ss)
+      (plet ((init
+              (build-initial-plan      all-bases base-type 
+                                       *problem* loop-problem ss))
+             (intermediate
               (build-intermediate-plan all-bases base-type
-                                       loop-plan loop-problem ss)
+                                       loop-plan loop-problem ss))
+             (final
               (build-final-plan        all-bases base-type 
-                                       *problem* loop-problem ss)
-              *problem*
-              all-bases))))
+                                       *problem* loop-problem ss)))
+        (values init
+                intermediate
+                final
+                *problem*
+                all-bases)))))
 
 @export
 (defun gen-base-many (n)

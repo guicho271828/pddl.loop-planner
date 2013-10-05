@@ -30,7 +30,7 @@
          (assert (= (length bases) 1))
          (let ((*problem*
                 (pddl-problem
-                 :name (concatenate-symbols loop-name 'total)
+                 :name (concatenate-symbols loop-name 'total howmany)
                  :domain *domain*
                  :init init/bases
                  :goal (list* 'and goal/bases)
