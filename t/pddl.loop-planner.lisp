@@ -15,13 +15,14 @@
         :guicho-red-black-tree
         :bordeaux-threads
         :lparallel
+        :inferior-shell
 	:pddl
         :pddl.loop-detection
         :pddl.loop-planner
 	:pddl.scheduler
 	:pddl.instances
         :fiveam)
-  (:shadow :place :maximize :minimize :force))
+  (:shadow :place :maximize :minimize :force :run :!))
 (in-package :pddl.loop-planner-test)
 
 (package-optimize-setting)
