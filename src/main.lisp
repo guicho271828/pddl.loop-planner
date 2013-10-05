@@ -1,7 +1,6 @@
 (in-package :pddl.loop-planner)
 (cl-syntax:use-syntax :annot)
 
-
 @export
 (defun exploit-and-solve-loop-problems (unit-plan base-object
                                         &rest rest
@@ -38,24 +37,25 @@
                   lazy
                   (handler #'my-handler))
   (let ((total 0))
-    (do-restart ((run-more
-                  (lambda (n) (setf howmany n) (continue))
-                  :interactive-function #'query-integer)
-                 (set-search-time
-                  (lambda (n)
-                    (setf howmany 0)
-                    (setf time-limit n))
-                  :interactive-function #'query-integer)
-                 (set-max-memory
-                  (lambda (n)
-                    (setf howmany 0)
-                    (setf memory n))
-                  :interactive-function #'query-integer)
-                 (set-base-limit
-                  (lambda (n)
-                    (setf howmany 0)
-                    (setf base-limit n))
-                  :interactive-function #'query-integer))
+    (restart-bind ((run-more
+                    (lambda (n) (setf howmany n) (continue))
+                     :interactive-function #'query-integer)
+                   (set-search-time
+                    (lambda (n)
+                      (setf howmany 0)
+                      (setf time-limit n)
+                      (continue))
+                     :interactive-function #'query-integer)
+                   (set-max-memory
+                    (lambda (n)
+                      (setf howmany 0)
+                      (setf memory n) (continue))
+                     :interactive-function #'query-integer)
+                   (set-base-limit
+                    (lambda (n)
+                      (setf howmany 0)
+                      (setf base-limit n) (continue))
+                     :interactive-function #'query-integer))
       (incf total howmany)
       (let* ((set-special (lambda (worker-loop)
                             (llet ((*total* total)
