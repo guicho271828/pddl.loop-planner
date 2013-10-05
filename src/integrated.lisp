@@ -14,12 +14,32 @@
   (multiple-value-bind (result base-type)
       (apply #'exploit-and-solve-loop-problems
              unit-plan unit-object :lazy t rest)
-    (apply #'build-total-plan
-           basenum
-           unit-plan
-           base-type
-           (first result))
-    ;; (multiple-value-bind (initial-actions actions total-problem all-bases)
-    
-    ;;   )
-    ))
+    (multiple-value-call #'output-entire-results
+      (apply #'build-total-plan
+             basenum
+             unit-plan
+             base-type
+             (first result)))))
+
+
+@export
+(defun output-entire-results (initial-actions
+                              intermediate-actions
+                              final-actions
+                              total-problem
+                              all-bases)
+  "returns plan-path,problem-path,validation-result. "
+  @ignorable all-bases
+  (let ((tmpdir (mktemp :total)))
+    (let ((plan-path (write-actions-as-plan
+                      (append initial-actions
+                              intermediate-actions
+                              final-actions)
+                      total-problem
+                      tmpdir))
+          (problem-path (write-problem total-problem tmpdir)))
+      (values plan-path
+              problem-path
+              (validate-plan (path (domain total-problem))
+                             problem-path
+                             plan-path :verbose t)))))
