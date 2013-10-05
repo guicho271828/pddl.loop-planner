@@ -9,17 +9,29 @@
                             (memory 200000000)
                             (time-limit 15)
                             (base-limit MOST-POSITIVE-FIXNUM)
-                            (handler #'my-handler))
+                            (handler #'my-handler)
+                            (interactive t))
   (declare (ignorable howmany memory time-limit base-limit handler))
-  (multiple-value-bind (result base-type)
-      (apply #'exploit-and-solve-loop-problems
-             unit-plan unit-object :lazy t rest)
-    (multiple-value-call #'output-entire-results
-      (apply #'build-total-plan
-             basenum
-             unit-plan
-             base-type
-             (first result)))))
+
+  (if interactive
+      (multiple-value-bind (result base-type)
+          (apply #'exploit-and-solve-loop-problems
+                 unit-plan unit-object :lazy t
+                 (remove-from-plist rest :interactive))
+        (multiple-value-call #'output-entire-results
+          (apply #'build-total-plan
+                 basenum
+                 unit-plan
+                 base-type
+                 (first result))))
+      (handler-bind ((simple-error
+                      (lambda (c)
+                        @ignore c
+                        (invoke-restart (find-restart 'finish)))))
+        (setf (getf rest :interactive) t)
+        (apply #'solve-many-problems basenum unit-plan unit-object rest))))
+
+
 
 
 @export
