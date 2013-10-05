@@ -42,7 +42,7 @@
                                 (some (rcurry #'related-to state) loop-bases))
                               (positive-predicates goal)))
             
-            (loop-init/bases (remove-if-not 
+            (loop-init/bases (remove-if
                               (lambda (state)
                                 (some (rcurry #'related-to state) loop-bases))
                               init)))
