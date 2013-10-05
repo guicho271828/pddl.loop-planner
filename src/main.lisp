@@ -42,38 +42,33 @@
                      :interactive-function #'query-integer)
                    (set-search-time
                     (lambda (n)
-                      (setf howmany 0)
                       (setf time-limit n)
                       (continue))
                      :interactive-function #'query-integer)
                    (set-max-memory
                     (lambda (n)
-                      (setf howmany 0)
                       (setf memory n) (continue))
                      :interactive-function #'query-integer)
                    (set-base-limit
                     (lambda (n)
-                      (setf howmany 0)
                       (setf base-limit n) (continue))
                      :interactive-function #'query-integer))
-      (incf total howmany)
-      (let* ((set-special (lambda (worker-loop)
-                            (llet ((*total* total)
-                                   (*howmany* howmany)
-                                   (*memory* memory)
-                                   (*time-limit* time-limit)
-                                   (*base-limit* base-limit))
-                              (funcall worker-loop))))
-             (*kernel* (make-kernel
-                        (kernel-worker-count)
-                        ;; :bindings `((*standard-output* . ,*standard-output*)
-                        ;;             (*error-output* . ,*error-output*)
-                        ;;             (*trace-output* . ,*trace-output*))
-                        :context set-special))) 
-        (funcall set-special
-                 (lambda ()
-                   (get-plans-inner base-type handler
-                                    lazy problem-pathnames)))))))
+      (handler-bind ((error (lambda (c) (declare (ignore c)) (setf howmany 0))))
+        (incf total howmany)
+        (let* ((set-special (lambda (worker-loop)
+                              (llet ((*total* total)
+                                     (*howmany* howmany)
+                                     (*memory* memory)
+                                     (*time-limit* time-limit)
+                                     (*base-limit* base-limit))
+                                (funcall worker-loop))))
+               (*kernel* (make-kernel
+                          (kernel-worker-count)
+                          :context set-special)))
+          (funcall set-special
+                   (lambda ()
+                     (get-plans-inner base-type handler
+                                      lazy problem-pathnames))))))))
 
 
 (defun build-search-option (seq-minimum-per-unit ss)
@@ -135,17 +130,29 @@
                          total base-limit time-limit memory)
   (multiple-value-bind (content value)
       (rb-minimum rb-queue)
-    (error "What to do next? ~:[~;All problems are already searched at least once.~]
+    (do-restart ((report-best
+                  (lambda (n)
+                    (print-timed-action-graphically
+                     (reschedule (first (nth (1- n) content)) :minimum-slack)
+                     *shared-output*))
+                  :interactive-function
+                  (lambda ()
+                    (format *query-io* "Enter the number of which plan to visualize.")
+                    (funcall #'query-integer))))
+        (error "What to do next? ~:[~;All problems are already searched at least once.~]
 Problems searched ~40t= ~a
 Current min. parallelized cost ~40t= ~5,2f
-Corresponding plan,problem ~40t=
-  ~w
+~:{
+  Corresponding plan~40t= ~w
+  Corresponding problem~40t= ~w
+  Corresponding ss~40t= ~w
+~^or~}
 Current base limit ~40t= ~a
 Current time limit ~40t= ~a
 Current memory limit ~40t= ~a"
-           all-problem-searched-once-p
-           total value
-           content base-limit time-limit memory)))
+               all-problem-searched-once-p
+               total value
+               content base-limit time-limit memory))))
 
 (defun test-problem-and-get-plan (base-type ppath &key
                                   (memory 200000000)
