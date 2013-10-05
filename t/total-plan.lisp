@@ -32,7 +32,7 @@
                   (log:info "result:"
                             (multiple-value-list 
                              (solve-many-problems
-                              i unit-plan 'b-0
+                              i plan 'b-0
                               :howmany 40 :time-limit 120
                               :base-limit 3 :interactive nil
                               :directory dropbox))))))))
