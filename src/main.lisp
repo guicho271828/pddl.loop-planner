@@ -76,6 +76,13 @@
                                     lazy problem-pathnames)))))))
 
 
+(defun build-search-option (seq-minimum-per-unit ss)
+  (if seq-minimum-per-unit
+      (lama-2011-bound
+       (* seq-minimum-per-unit
+          (length ss)))
+      *fd-options*))
+
 (defun get-plans-inner (base-type handler lazy problem-pathnames)
   (handler-bind ((steady-state-condition handler))
     (forcef problem-pathnames))
@@ -85,50 +92,60 @@
         (rb-queue (leaf))
         (lazy-paths-lock (make-lock "Lazy paths lock"))
         (result-lock (make-lock "Result lock"))
-        (loop-plan-results (make-hash-table)))
-    (restart-return ((finish (lambda ()
-                               (rb-minimum rb-queue))))
-      (do-restart ((continue (lambda ())))
+        (loop-plan-results (make-hash-table))
+        (seq-minimum-per-unit MOST-POSITIVE-FIXNUM)) ; the minimum cost of sequencial plans
+    (restart-return ((finish (lambda () (rb-minimum rb-queue))))
+      (do-restart ((continue (constantly nil)))
         (pdotimes (i (force *howmany*))
           @ignorable i
-
-          (if-let ((path (if lazy
-                             (with-lock-held (lazy-paths-lock)
-                               (handler-bind ((steady-state-condition handler))
-                                 (fpop problem-pathnames)))
-                             (handler-return
-                                 ((type-error
-                                   (lambda (c)
-                                     (declare (ignore c))
-                                     (setf all-problem-searched-once-p t)
-                                     nil)))
-                               (elt problem-pathnames (+ (force *total*) i))))))
-            (ematch path
-              ((list path ss)
-               (multiple-value-bind (*problem* plans analyses)
-                   (test-problem-and-get-plan
-                    base-type
-                    path
-                    :time-limit (force *time-limit*)
-                    :memory (force *memory*))
-                 (with-lock-held (result-lock)
-                   (setf (gethash *problem* loop-plan-results) plans))
-                 (iter (for plan in plans)
-                       (for (seq par base-count time-per-base) in analyses)
-                       (with-lock-held (rb-lock)
-                         (setf rb-queue
-                               (rb-insert
-                                rb-queue par
-                                (cons (list plan *problem* ss)
-                                      (rb-member par rb-queue)))))))))
-            (incf not-searched-actually)))
+          (ematch (if lazy
+                      (with-lock-held (lazy-paths-lock)
+                        (handler-bind ((steady-state-condition handler))
+                          (fpop problem-pathnames)))
+                      (handler-return ((type-error (constantly nil)))
+                        (elt problem-pathnames (+ (force *total*) i))))
+            ((list path ss)
+             (multiple-value-bind (*problem* plans analyses)
+                 (test-problem-and-get-plan
+                  base-type path
+                  :time-limit (force *time-limit*)
+                  :memory (force *memory*))
+               (with-lock-held (result-lock)
+                 (setf (gethash *problem* loop-plan-results) plans))
+               (iter (for plan in plans)
+                     (for (seq par base-count time-per-base) in analyses)
+                     (with-lock-held (rb-lock)
+                       (setf seq-minimum-per-unit 
+                             (min seq seq-minimum-per-unit))
+                       (setf rb-queue
+                             (rb-insert
+                              rb-queue par
+                              (cons (list plan *problem* ss)
+                                    (rb-member par rb-queue))))))))
+            (nil 
+             (setf all-problem-searched-once-p t)
+             (incf not-searched-actually))))
         (pause-and-report 
-         rb-queue 
-         all-problem-searched-once-p
+         rb-queue all-problem-searched-once-p
          (- (force *total*) not-searched-actually)
-         (force *time-limit*)
-         (force *memory*))))))
+         (force *base-limit*) (force *time-limit*) (force *memory*))))))
 
+(defun pause-and-report (rb-queue 
+                         all-problem-searched-once-p
+                         total base-limit time-limit memory)
+  (multiple-value-bind (content value)
+      (rb-minimum rb-queue)
+    (error "What to do next? ~:[~;All problems are already searched at least once.~]
+Problems searched ~40t= ~a
+Current min. parallelized cost ~40t= ~5,2f
+Corresponding plan,problem ~40t=
+  ~w
+Current base limit ~40t= ~a
+Current time limit ~40t= ~a
+Current memory limit ~40t= ~a"
+           all-problem-searched-once-p
+           total value
+           content base-limit time-limit memory)))
 
 (defun test-problem-and-get-plan (base-type ppath &key
                                   (memory 200000000)
@@ -182,19 +199,3 @@
          (base-count (count-objects *problem* base-type))
          (time-per-base (/ par base-count)))
     (list seq par base-count time-per-base)))
-
-
-(defun pause-and-report (rb-queue 
-                         all-problem-searched-once-p
-                         total time-limit memory)
-  (multiple-value-bind (content value)
-      (rb-minimum rb-queue)
-    (error "What to do next? ~:[~;All problems are already searched at least once.~]
-Problems searched ~40t= ~a
-Current min. parallelized cost ~40t= ~5,2f
-Corresponding plan,problem ~40t=
-  ~w
-Current time limit ~40t= ~a
-Current memory limit ~40t= ~a"
-           all-problem-searched-once-p
-           total value content time-limit memory)))
