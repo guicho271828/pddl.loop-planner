@@ -15,9 +15,11 @@
 	       :pddl.loop-planner
                :pddl-test
                :repl-utilities
-               :cl-test-more)
+               :fiveam
+               :log4cl)
   :components ((:module "t"
                 :components
-                ((:file "pddl.loop-planner")
-                 (:file :validate))))
+                ((:file :pddl.loop-planner)
+                 (:file :validate)
+                 (:file :total-plan))))
   :perform (load-op :after (op c) (asdf:clear-system c)))
