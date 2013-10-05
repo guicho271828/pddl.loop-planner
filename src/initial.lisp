@@ -2,9 +2,7 @@
 (cl-syntax:use-syntax :annot)
 
 (defvar *initial-plan-fd-option*
-  (format nil "--heuristic hlm,hff=~
-                  lm_ff_syn(lm_rhw(reasonable_orders=true,lm_cost_type=2,cost_type=2)) ~
-               --search lazy_wastar([hff,hlm],preferred=[hff,hlm],w=2)"))
+  "ipc seq-sat-lama-2011")
 
 
 @export
@@ -25,6 +23,7 @@
          (test-problem
           (write-problem initial-problem (mktemp :initial))
           (path *domain*)
+          :time-limit 300
           :options *initial-plan-fd-option*))
         *domain*
         initial-problem)))

@@ -2,9 +2,7 @@
 (cl-syntax:use-syntax :annot)
 
 (defvar *final-plan-fd-option*
-  (format nil "--heuristic hlm,hff=~
-                  lm_ff_syn(lm_rhw(reasonable_orders=true,lm_cost_type=2,cost_type=2)) ~
-               --search lazy_wastar([hff,hlm],preferred=[hff,hlm],w=2)"))
+  "ipc seq-sat-lama-2011")
 
 @export
 (defun build-final-plan (all-bases
@@ -24,6 +22,7 @@
          (test-problem
           (write-problem final-problem (mktemp :final))
           (path *domain*)
+          :time-limit 300
           :options *final-plan-fd-option*))
         *domain*
         final-problem)))
