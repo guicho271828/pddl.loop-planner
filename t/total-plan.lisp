@@ -13,14 +13,14 @@
        :directory tmpdir)
       (run `(rm -r ,tmpdir)))))
 
-(defvar *log-dir*
+(defparameter *log-dir*
   (merge-pathnames
    #p"Dropbox/loop-planner/"
    (user-homedir-pathname)))
 (ensure-directories-exist *log-dir*)
 
-(defvar *log-name*
-  (merge-pathnames #p"loop-planner" *log-dir*))
+(defparameter *log-name*
+  (merge-pathnames #p"logfile" *log-dir*))
 
 (log:config :daily *log-name*)
   
