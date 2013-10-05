@@ -11,6 +11,7 @@
         (actions (actions loop-plan)))
     (iter total
           (for rest-bases on all-bases)
+          (until (< (length rest-bases) len))
           (for current-loop-bases = (subseq rest-bases 0 len))
           (iter (for a in-vector actions from 1 below (1- (length actions)))
                 (in total
