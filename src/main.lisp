@@ -10,7 +10,8 @@
                                         (time-limit 15)
                                         (base-limit MOST-POSITIVE-FIXNUM)
                                         lazy
-                                        (handler #'my-handler))
+                                        (handler #'my-handler)
+                                        &allow-other-keys)
   (declare (ignorable howmany memory base-limit time-limit lazy handler))
   (multiple-value-bind (paths base-type)
       (if lazy
@@ -35,7 +36,8 @@
                   (time-limit 15)
                   (base-limit MOST-POSITIVE-FIXNUM)
                   lazy
-                  (handler #'my-handler))
+                  (handler #'my-handler)
+                  &allow-other-keys)
   (let ((total 0))
     (restart-bind ((run-more
                     (lambda (n) (setf howmany n) (continue))

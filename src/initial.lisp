@@ -24,6 +24,7 @@
           (write-problem initial-problem (mktemp :initial))
           (path *domain*)
           :time-limit 300
+          :memory 500000
           :options *initial-plan-fd-option*))
         *domain*
         initial-problem)))

@@ -9,11 +9,9 @@
 (defun build-total-plan (howmany unit-plan base-type loop-plan loop-problem ss)
   "returns plan actions, total-problem, all bases"
   (assert (< (length ss) howmany))
-  (let ((*domain* (domain unit-plan))
-        (tmpdir (mktemp :total)))
+  (let ((*domain* (domain unit-plan)))
     (multiple-value-bind (*problem* all-bases)
         (build-total-problem howmany base-type unit-plan loop-problem)
-      (write-problem *problem* tmpdir)
       (let ((*kernel* (make-kernel
                        (kernel-worker-count)
                        :bindings `((*domain* . ,*domain*)

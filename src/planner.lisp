@@ -26,7 +26,7 @@ with the following arguments.
 
   problem, domain : the pathnames of pddl files.
   options : a string which will be the search and heuristic options to downward.
-  memory : number[Byte], given to ulimit -m
+  memory : number[kByte], given to ulimit -m
   time-limit : number[sec.], given to ulimit -t
 
 returns a list of pathnames of plan files.
