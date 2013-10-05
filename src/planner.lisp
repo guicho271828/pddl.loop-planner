@@ -34,7 +34,7 @@ returns a list of pathnames of plan files.
 (defun test-problem (problem
                      domain
                      &key
-                     (stream *standard-output*)
+                     (stream *shared-output*)
                      (options *fd-options*)
                      memory
                      time-limit)
