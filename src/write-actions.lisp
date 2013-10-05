@@ -18,5 +18,8 @@
                        :if-exists :supersede
                        :if-does-not-exist :create)
       (iter (for a in actions)
-            (print `(,(name a) ,@(mapcar #'name (parameters a))) s)))
+            (write `(,(name a) ,@(mapcar #'name (parameters a)))
+                   :stream s
+                   :escape nil)
+            (terpri s)))
     path))
