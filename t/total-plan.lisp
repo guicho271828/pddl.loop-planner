@@ -5,9 +5,11 @@
 
 (test total-plan
   (finishes
-    (solve-many-problem
+    (solve-many-problems
      2
      cell-assembly-model2a-1-6
      'b-0
      :howmany 3 :time-limit 20 :base-limit 5)))
+
+
 

@@ -2,14 +2,14 @@
 (cl-syntax:use-syntax :annot)
 
 @export
-(defun solve-many-problem (basenum unit-plan unit-object
-                           &rest rest
-                           &key
-                           (howmany 40)
-                           (memory 200000000)
-                           (time-limit 15)
-                           (base-limit MOST-POSITIVE-FIXNUM)
-                           (handler #'my-handler))
+(defun solve-many-problems (basenum unit-plan unit-object
+                            &rest rest
+                            &key
+                            (howmany 40)
+                            (memory 200000000)
+                            (time-limit 15)
+                            (base-limit MOST-POSITIVE-FIXNUM)
+                            (handler #'my-handler))
   (declare (ignorable howmany memory time-limit base-limit handler))
   (multiple-value-bind (result base-type)
       (apply #'exploit-and-solve-loop-problems
