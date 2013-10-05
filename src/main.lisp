@@ -132,7 +132,8 @@
 
 (defun test-problem-and-get-plan (base-type ppath &key
                                   (memory 200000000)
-                                  (time-limit 15))
+                                  (time-limit 15)
+                                  (options *fd-options*))
   (let* ((*problem* (%make-problem ppath))
          (*domain* (domain *problem*))
          (plans
@@ -141,7 +142,8 @@
            (test-problem ppath (path *domain*)
                          :stream nil
                          :memory memory
-                         :time-limit time-limit)))
+                         :time-limit time-limit
+                         :options options)))
          (analyses (mapcar (rcurry #'analyze-plan base-type) plans)))
     (report-results ppath analyses)
     (values *problem* plans analyses)))
