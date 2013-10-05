@@ -35,7 +35,18 @@
                  (:file "utils")
                  (:file "handler")
                  (:file "main")
-                 (:file "validate"))
+                 (:file "validate")
+
+                 (:file :total-plan)
+                 (:file :total-problem)
+                 (:file :intermediate)
+                 (:file :initial)
+                 (:file :final)
+                 (:file :integrated)
+                 
+                 (:file :search-options)
+                 (:file :write-actions)
+                 )
                 :depends-on ("src/package")))
   :description ""
   :long-description
