@@ -25,13 +25,13 @@
 (log:config :daily *log-name*)
   
 (defun benchmark ()
-  (iter (for plan in (list cell-assembly-model2b-1-6
-                           cell-assembly-model2a-1-6
-                           cell-assembly-model3a-1-5
-                           cell-assembly-model3b-1-5
-                           cell-assembly-model3c-1-8))
-
-        (log:info "start planning ~a" (name plan))
+  (iter (for plansym in '(cell-assembly-model2b-1-6
+                          cell-assembly-model2a-1-6
+                          cell-assembly-model3a-1-5
+                          cell-assembly-model3b-1-5
+                          cell-assembly-model3c-1-8))
+        (for plan = (symbol-value plansym))
+        (log:info "start planning ~a" plansym)
         (iter (for i in '(4 16 64 256 1024))
               (log:info "start planning ~a base plan" i)
               (log:info "result:"
