@@ -4,17 +4,22 @@
 (defvar *initial-plan-fd-option*
   "ipc seq-sat-lama-2011")
 
+@export
 (defvar *memory-limit-for-initial/final*
   (progn
     (format t "~&Input a memory limit [kB] for the initial and final search.
-This value can be modified with (setf *memory-limit-for-initial/final* newval).")
-    
+This value can be modified with (setf *memory-limit-for-initial/final* newval).
+For X60/61   :   500000
+For clusters : 10000000")    
     (first (query-integer))))
 
+@export
 (defvar *hard-time-limit-for-initial/final*
   (progn
-    (format t "~&Input a hard time limit [sec] for the initial and final search. (default: 1800)
-This value can be modified with (setf *hard-time-limit-for-initial/final* newval)")
+    (format t "~&Input a hard time limit [sec] for the initial and final search.
+This value can be modified with (setf *hard-time-limit-for-initial/final* newval)
+Default    : 1800
+Experiment : 3600")
     (first (query-integer))))
 
 @export

@@ -6,7 +6,7 @@
                                         &rest rest
                                         &key
                                         (howmany 40)
-                                        (memory 200000000)
+                                        (memory 500000)
                                         (time-limit 15)
                                         (base-limit MOST-POSITIVE-FIXNUM)
                                         lazy
@@ -32,7 +32,7 @@
 ;;;; shell function that serves interactive feature
 (defun get-plans (base-type problem-pathnames &key
                   (howmany 40)
-                  (memory 200000000)
+                  (memory 500000)
                   (time-limit 15)
                   (base-limit MOST-POSITIVE-FIXNUM)
                   lazy
@@ -105,6 +105,7 @@
              (multiple-value-bind (*problem* plans analyses)
                  (test-problem-and-get-plan
                   base-type path
+                  :time-limit (1- (force *time-limit*))
                   :hard-time-limit (force *time-limit*)
                   :memory (force *memory*))
                (with-lock-held (result-lock)
