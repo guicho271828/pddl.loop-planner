@@ -48,7 +48,7 @@
                           i plan 'b-0
                           :howmany 50
                           :time-limit 120
-                          :memory-limit 500000
+                          :memory 500000
                           :base-limit 3
                           :interactive nil
                           :directory *log-dir*))))))
