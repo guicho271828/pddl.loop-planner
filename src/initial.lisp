@@ -4,6 +4,18 @@
 (defvar *initial-plan-fd-option*
   "ipc seq-sat-lama-2011")
 
+(defvar *memory-limit-for-initial/final*
+  (progn
+    (format t "~&Input a memory limit [kB] for the initial and final search.
+This value can be modified with (setf *memory-limit-for-initial/final* newval).")
+    
+    (first (query-integer))))
+
+(defvar *hard-time-limit-for-initial/final*
+  (progn
+    (format t "~&Input a hard time limit [sec] for the initial and final search. (default: 1800)
+This value can be modified with (setf *hard-time-limit-for-initial/final* newval)")
+    (first (query-integer))))
 
 @export
 (defun build-initial-plan (all-bases
@@ -24,7 +36,8 @@
           (write-problem initial-problem (mktemp :initial))
           (path *domain*)
           :time-limit 300
-          :memory 500000
+          :hard-time-limit *hard-time-limit-for-initial/final*
+          :memory *memory-limit-for-initial/final*
           :options *initial-plan-fd-option*))
         *domain*
         initial-problem)))

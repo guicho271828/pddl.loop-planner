@@ -21,7 +21,7 @@
 
 (defun query-integer ()
   (loop
-     (format *query-io* "~%Input a positive integer. : ")
+     (format *query-io* "~&Input a positive integer. : ")
      (let ((read (read *query-io*)))
        (when (and (integerp read) (plusp read))
          (return (list read))))))

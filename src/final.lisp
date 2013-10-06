@@ -23,7 +23,8 @@
           (write-problem final-problem (mktemp :final))
           (path *domain*)
           :time-limit 300
-          :memory 500000
+          :memory *memory-limit-for-initial/final*
+          :hard-time-limit *hard-time-limit-for-initial/final*
           :options *final-plan-fd-option*))
         *domain*
         final-problem)))
