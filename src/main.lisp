@@ -105,7 +105,7 @@
              (multiple-value-bind (*problem* plans analyses)
                  (test-problem-and-get-plan
                   base-type path
-                  :time-limit (force *time-limit*)
+                  :hard-time-limit (force *time-limit*)
                   :memory (force *memory*))
                (with-lock-held (result-lock)
                  (setf (gethash *problem* loop-plan-results) plans))
@@ -156,20 +156,20 @@ Current memory limit ~40t= ~a"
                total value
                content base-limit time-limit memory))))
 
-(defun test-problem-and-get-plan (base-type ppath &key
-                                  (memory 200000000)
-                                  (time-limit 15)
-                                  (options *fd-options*))
+(defun test-problem-and-get-plan (base-type ppath
+                                  &rest rest
+                                  &key
+                                  (options *fd-options*)
+                                  &allow-other-keys)
   (let* ((*problem* (%make-problem ppath))
          (*domain* (domain *problem*))
          (plans
           (mapcar
            #'%make-plan
-           (test-problem ppath (path *domain*)
-                         :stream nil
-                         :memory memory
-                         :time-limit time-limit
-                         :options options)))
+           (apply #'test-problem
+                  ppath (path *domain*)
+                  :stream nil
+                  :options options rest)))
          (analyses (mapcar (rcurry #'analyze-plan base-type) plans)))
     (report-results ppath analyses)
     (values *problem* plans analyses)))

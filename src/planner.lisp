@@ -36,10 +36,14 @@ returns a list of pathnames of plan files.
                      &key
                      (stream *shared-output*)
                      (options *fd-options*)
+                     verbose
                      memory
-                     time-limit)
-  (run `(,*test-problem* ,@(when memory `(-m ,memory))
+                     time-limit
+                     hard-time-limit)
+  (run `(,*test-problem* ,@(when verbose `(-v))
+                         ,@(when memory `(-m ,memory))
                          ,@(when time-limit `(-t ,time-limit))
+                         ,@(when hard-time-limit `(-T ,hard-time-limit))
                          ,@(when options `(-o ,options))
                          ,problem ,domain)
        :show t
