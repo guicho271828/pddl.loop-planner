@@ -200,7 +200,8 @@ Current memory limit ~40t= ~a"
             (finally
              (format *shared-output*
                      "~%~{~10,,,'-@<~a~>~^-+-~}"
-                     '(- - - - -)))))))
+                     '(- - - - -)))))
+    (terpri *shared-output*)))
 
 (defun analyze-plan (plan base-type)
   (let* ((seq (sequencial-length plan))
