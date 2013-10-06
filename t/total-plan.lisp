@@ -31,7 +31,7 @@
                            cell-assembly-model3b-1-5
                            cell-assembly-model3c-1-8))
 
-        (log:info "start planning" plan)
+        (log:info "start planning ~a" (name plan))
         (iter (for i in '(4 16 64 256 1024))
               (log:info "start planning ~a base plan" i)
               (log:info "result:"
