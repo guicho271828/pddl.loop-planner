@@ -38,7 +38,8 @@ Experiment : 3600")
        (parse-plan
         (lastcar
          (test-problem
-          (write-problem initial-problem (mktemp :initial))
+          (write-problem initial-problem (mktemp (concatenate-symbols
+                                                  :initial (length all-bases))))
           (path *domain*)
           :time-limit 300
           :hard-time-limit *hard-time-limit-for-initial/final*
@@ -69,7 +70,7 @@ Experiment : 3600")
             (init+bases (gethash t   init)))
        
        (pddl-problem :domain *domain*
-                     :name (concatenate-symbols loop-name 'initial)
+                     :name (concatenate-symbols loop-name 'initial (length all-bases))
                      :objects (objects/const total-problem)
                      :init (init total-problem)
                      :goal (list* 'and

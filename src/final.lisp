@@ -20,7 +20,8 @@
        (parse-plan
         (lastcar
          (test-problem
-          (write-problem final-problem (mktemp :final))
+          (write-problem final-problem (mktemp (concatenate-symbols
+                                                :final (length all-bases))))
           (path *domain*)
           :time-limit 300
           :memory *memory-limit-for-initial/final*
@@ -55,7 +56,7 @@
                               init)))
        
        (pddl-problem :domain *domain*
-                     :name (concatenate-symbols loop-name 'final)
+                     :name (concatenate-symbols loop-name 'final (length all-bases))
                      :objects (objects/const total-problem)
                      :init (append loop-init/bases ; ベース以外の条件
                                    (mapcar (lambda (state) ; 最終ループ後に移動するベースら
