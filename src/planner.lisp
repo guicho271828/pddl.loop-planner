@@ -43,7 +43,7 @@ returns a list of pathnames of plan files.
   (run `(,*test-problem* ,@(when verbose `(-v))
                          ,@(when memory `(-m ,memory))
                          ,@(when time-limit `(-t ,time-limit))
-                         ,@(when hard-time-limit `(|-T| ,hard-time-limit))
+                         ,@(when hard-time-limit `("-T" ,hard-time-limit))
                          ,@(when options `(-o ,options))
                          ,problem ,domain)
        :show t
