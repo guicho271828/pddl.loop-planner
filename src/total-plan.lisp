@@ -16,20 +16,22 @@
                        (kernel-worker-count)
                        :bindings `((*domain* . ,*domain*)
                                    (*problem* . ,*problem*)))))
-        (plet ((init
-                (build-initial-plan      all-bases base-type 
-                                         *problem* loop-problem ss))
-               (intermediate
-                (build-intermediate-plan all-bases base-type
-                                         loop-plan loop-problem ss))
-               (final
-                (build-final-plan        all-bases base-type 
-                                         *problem* loop-problem ss)))
-          (values init
-                  intermediate
-                  final
-                  *problem*
-                  all-bases))))))
+        (unwind-protect
+             (plet ((init
+                     (build-initial-plan      all-bases base-type 
+                                              *problem* loop-problem ss))
+                    (intermediate
+                     (build-intermediate-plan all-bases base-type
+                                              loop-plan loop-problem ss))
+                    (final
+                     (build-final-plan        all-bases base-type 
+                                              *problem* loop-problem ss)))
+               (values init
+                       intermediate
+                       final
+                       *problem*
+                       all-bases))
+          (end-kernel))))))
 
 @export
 (defun gen-base-many (n)

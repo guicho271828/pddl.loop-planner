@@ -67,10 +67,12 @@
                (*kernel* (make-kernel
                           (kernel-worker-count)
                           :context set-special)))
-          (funcall set-special
-                   (lambda ()
-                     (get-plans-inner base-type handler
-                                      lazy problem-pathnames))))))))
+          (unwind-protect
+               (funcall set-special
+                        (lambda ()
+                          (get-plans-inner base-type handler
+                                           lazy problem-pathnames)))
+            (end-kernel)))))))
 
 
 (defun build-search-option (seq-minimum-per-unit ss)
