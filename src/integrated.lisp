@@ -56,4 +56,4 @@
             problem-path
             (validate-plan (path (domain total-problem))
                            problem-path
-                           plan-path :verbose t))))
+                           plan-path))))
