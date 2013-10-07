@@ -15,7 +15,10 @@
       (let ((*kernel* (make-kernel
                        (kernel-worker-count)
                        :bindings `((*domain* . ,*domain*)
-                                   (*problem* . ,*problem*)))))
+                                   (*problem* . ,*problem*)
+                                   (*trace-output* . ,*trace-output*)
+                                   (*standard-output* . ,*standard-output*)
+                                   (*error-output* . ,*error-output*)))))
         (unwind-protect
              (plet ((init
                      (build-initial-plan      all-bases base-type 

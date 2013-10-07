@@ -43,6 +43,7 @@
                    :metric metric)
      
      (let* ((final-bases-to-move (last all-bases (length ss)))
+            (final-bases-not-to-move (butlast all-bases (length ss)))
             (base-type-p (rcurry #'pddl-typep base-type))
             (loop-bases (remove-if-not base-type-p objs))
             (loop-goal+bases (remove-if-not 
@@ -57,7 +58,9 @@
        
        (pddl-problem :domain *domain*
                      :name (concatenate-symbols loop-name 'final (length all-bases))
-                     :objects (objects/const total-problem)
+                     :objects (set-difference
+                               (objects/const total-problem)
+                               final-bases-not-to-move)
                      :init (append loop-init/bases ; ベース以外の条件
                                    (mapcar (lambda (state) ; 最終ループ後に移動するベースら
                                              (substitute-objects
@@ -70,5 +73,11 @@
                                       (some (rcurry #'related-to state)
                                             final-bases-to-move))
                                     (positive-predicates (goal total-problem))))
-                     :goal (goal total-problem)
+                     :goal (list* 'and
+                                  (remove-if
+                                   (lambda (state)
+                                     (some (rcurry #'related-to state)
+                                           final-bases-not-to-move))
+                                   (positive-predicates
+                                    (goal total-problem))))
                      :metric metric)))))

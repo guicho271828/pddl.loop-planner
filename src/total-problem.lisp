@@ -28,16 +28,16 @@
               (goal/bases (gethash nil goal))
               (goal+bases (gethash t   goal)))
          (assert (= (length bases) 1))
-         (let ((*problem*
-                (pddl-problem
-                 :name (concatenate-symbols loop-name 'total howmany)
-                 :domain *domain*
-                 :init init/bases
-                 :goal (list* 'and goal/bases)
-                 :metric metric))
-               (all-bases
-                (mapcar (curry #'pddl-object :type base-type :name)
-                        (gen-base-many howmany))))
+         (let* ((*problem*
+                 (pddl-problem
+                  :name (concatenate-symbols loop-name 'total howmany)
+                  :domain *domain*
+                  :init init/bases
+                  :goal (list* 'and goal/bases)
+                  :metric metric))
+                (all-bases
+                 (mapcar (curry #'pddl-object :type base-type :name)
+                         (gen-base-many howmany))))
 
            ;; add objects
            (setf (objects *problem*)

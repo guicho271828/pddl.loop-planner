@@ -60,6 +60,7 @@ Experiment : 3600")
                    :metric metric)
      
      (let* ((initial-bases-to-move (subseq all-bases 0 (length ss)))
+            (initial-bases-not-to-move (nthcdr (length ss) all-bases))
             (base-type-p (rcurry #'pddl-typep base-type))
             (loop-bases (remove-if-not base-type-p objs))
             (init (categorize 
@@ -71,8 +72,14 @@ Experiment : 3600")
        
        (pddl-problem :domain *domain*
                      :name (concatenate-symbols loop-name 'initial (length all-bases))
-                     :objects (objects/const total-problem)
-                     :init (init total-problem)
+                     :objects (set-difference
+                               (objects/const total-problem)
+                               initial-bases-not-to-move)
+                     :init (remove-if
+                            (lambda (state)
+                              (some (rcurry #'related-to state)
+                                    initial-bases-not-to-move))
+                            (init total-problem))
                      :goal (list* 'and
                                   (remove-if
                                    (rcurry #'typep 'pddl-function-state)

@@ -42,14 +42,17 @@
         (log:info "planning ~a" plansym)
         (iter (for i in '(4 16 64 256 1024))
               (log:info "planning ~a base plan" i)
-              (log:info "result:"
-                        (multiple-value-list 
-                         (solve-many-problems
-                          i plan 'b-0
-                          :howmany 50
-                          :time-limit 120
-                          :memory 500000
-                          :base-limit 3
-                          :interactive nil
-                          :directory *log-dir*))))))
+              (for result = (multiple-value-list 
+                             (solve-many-problems
+                              i plan 'b-0
+                              :howmany 50
+                              :time-limit 120
+                              :memory 500000
+                              :base-limit 3
+                              :interactive nil
+                              :directory *log-dir*)))
+              (log:info "result:" result)
+              (for validation = (apply #'validate-plan result))
+              (log:info "Validation result:" validation))))
+
 

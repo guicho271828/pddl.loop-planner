@@ -130,6 +130,9 @@
          (- (force *total*) not-searched-actually)
          (force *base-limit*) (force *time-limit*) (force *memory*))))))
 
+(define-condition query-finish (simple-error)
+  ())
+
 (defun pause-and-report (rb-queue 
                          all-problem-searched-once-p
                          total base-limit time-limit memory)
@@ -144,7 +147,8 @@
                   (lambda ()
                     (format *query-io* "Enter the number of which plan to visualize.")
                     (funcall #'query-integer))))
-        (error "What to do next? ~:[~;All problems are already searched at least once.~]
+      (error 'query-finish
+             :format-control "What to do next? ~:[~;All problems are already searched at least once.~]
 Problems searched ~40t= ~a
 Current min. parallelized cost ~40t= ~5,2f
 ~:{
@@ -155,9 +159,10 @@ Current min. parallelized cost ~40t= ~5,2f
 Current base limit ~40t= ~a
 Current time limit ~40t= ~a
 Current memory limit ~40t= ~a"
-               all-problem-searched-once-p
-               total value
-               content base-limit time-limit memory))))
+             :format-arguments
+             (list all-problem-searched-once-p
+                   total value
+                   content base-limit time-limit memory)))))
 
 (defun test-problem-and-get-plan (base-type ppath
                                   &rest rest

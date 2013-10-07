@@ -2,6 +2,7 @@
 (cl-syntax:use-syntax :annot)
 
 @export
+@doc "Returns domain-path,problem-path,plan-path"
 (defun solve-many-problems (basenum unit-plan unit-object
                             &rest rest
                             &key
@@ -25,7 +26,7 @@
                  base-type
                  (first result))
           directory))
-      (handler-bind ((simple-error
+      (handler-bind ((query-finish
                       (lambda (c)
                         @ignore c
                         (invoke-restart (find-restart 'finish)))))
@@ -52,8 +53,6 @@
                     total-problem
                     tmpdir))
         (problem-path (write-problem total-problem tmpdir)))
-    (values plan-path
+    (values (path (domain total-problem))
             problem-path
-            (validate-plan (path (domain total-problem))
-                           problem-path
-                           plan-path))))
+            plan-path)))
