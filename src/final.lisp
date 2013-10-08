@@ -62,6 +62,11 @@
                                (objects/const total-problem)
                                final-bases-not-to-move)
                      :init (append loop-init/bases ; ベース以外の条件
+                                   (remove-if-not ; すべてのベースに関して、function のみ
+                                    (lambda (state)
+                                      (and (some (rcurry #'related-to state) all-bases)
+                                           (typep state 'pddl-function-state)))
+                                    (init total-problem))
                                    (mapcar (lambda (state) ; 最終ループ後に移動するベースら
                                              (substitute-objects
                                               state 

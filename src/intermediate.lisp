@@ -19,14 +19,9 @@
 
 (defun substitute-objects (a new-bases old-bases)
   (assert (= (length new-bases) (length old-bases)))
-  (ematch a
-    ((and (pddl-parametrized-object :parameters params)
-          (namable :name name))
-     (make-instance
-      (class-of a)
-      :name name :parameters
-      (let ((params (copy-list params)))
-        (iter (for b1 in old-bases)
-              (for b2 in new-bases)
-              (setf params (nsubstitute b2 b1 params)))
-        params)))))
+  (shallow-copy a :parameters
+                (let ((params (copy-list (parameters a))))
+                  (iter (for b1 in old-bases)
+                        (for b2 in new-bases)
+                        (setf params (nsubstitute b2 b1 params)))
+                  params)))
