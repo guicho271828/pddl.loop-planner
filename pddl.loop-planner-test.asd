@@ -13,6 +13,8 @@
   :license ""
   :depends-on (:pddl.instances
                :pddl.instances.cell-assembly-loop
+	       :pddl.instances.barman
+	       :pddl.instances.woodworking-tempo-converted
 	       :pddl.loop-planner
                :pddl-test
                :repl-utilities
