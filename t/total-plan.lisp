@@ -11,7 +11,7 @@
        cell-assembly-model3a-1-5
        'b-0 :howmany 2 :time-limit 15 :base-limit 3 :interactive nil
        :directory tmpdir)
-      (run `(rm -r ,tmpdir)))))
+      (inferior-shell:run `(rm -r ,tmpdir)))))
 
 (defparameter *log-dir*
   (merge-pathnames
