@@ -1,6 +1,5 @@
 
 (in-package :pddl.loop-planner-test)
-(def-suite :pddl.loop-planner :in :pddl)
 (in-suite :pddl.loop-planner)
 
 (test total-plan
