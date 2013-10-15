@@ -16,13 +16,14 @@
         :bordeaux-threads
         :lparallel
         :inferior-shell
+        :optima
 	:pddl
         :pddl.loop-detection
         :pddl.loop-planner
 	:pddl.scheduler
 	:pddl.instances
         :fiveam)
-  (:shadow :place :maximize :minimize :force :run :!))
+  (:shadow :fail :place :maximize :minimize :force :run :!))
 (in-package :pddl.loop-planner-test)
 
 (package-optimize-setting)
