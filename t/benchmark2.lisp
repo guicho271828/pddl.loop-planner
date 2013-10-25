@@ -15,12 +15,13 @@
                           wood-loop2-tempo-converted-1-1
                           barman-loop-base-2))
         (for plan = (symbol-value plansym))
+        (for basesym in '(part-0 part-0 shot1))
         (log:info "planning ~a" plansym)
         (iter (for i in '(4 16 64 256 1024))
               (log:info "planning ~a base plan" i)
               (for result = (multiple-value-list 
                              (solve-many-problems
-                              i plan 'b-0
+                              i plan basesym
                               :howmany 50
                               :time-limit 120
                               :memory 500000
