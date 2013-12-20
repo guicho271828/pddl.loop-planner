@@ -17,7 +17,7 @@
    (asdf:system-source-directory :pddl.loop-planner)))
 
 (defvar *test-problem*
-  (merge-pathnames "test-problem.sh" *system*))
+  (merge-pathnames "planner-scripts/test-problem.sh" *system*))
 
 @export
 @doc " Runs

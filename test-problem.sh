@@ -1,1 +1,0 @@
-../pddl/data/test-problem.sh

@@ -72,7 +72,7 @@
                       (when-let ((re (find-restart 'finish c)))
                         (invoke-restart re)))))
       (exploit-and-solve-loop-problems
-       cell-assembly-model2b-1-6 'b-0
+       cell-assembly-model2b-1-1 'b-0
        :howmany 1)))
   (format t "~2%
 ***************************************~3%
@@ -93,6 +93,6 @@
                       (when-let ((re (find-restart 'finish c)))
                         (invoke-restart re)))))
       (exploit-and-solve-loop-problems
-       cell-assembly-model2a-1-6 'b-0
+       cell-assembly-model2a-1-1 'b-0
        :howmany 1 :lazy t))))
 

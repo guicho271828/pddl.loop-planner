@@ -1,0 +1,3 @@
+[submodule "planner-scripts"]
+	path = planner-scripts
+	url = ../planner-scripts.git
