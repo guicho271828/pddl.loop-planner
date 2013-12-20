@@ -12,6 +12,7 @@
   :author "Masataro Asai"
   :license ""
   :depends-on (:pddl.instances
+               :pddl.instances.cell-assembly-loop
 	       :pddl.loop-planner
                :pddl-test
                :repl-utilities
