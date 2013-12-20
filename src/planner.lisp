@@ -1,7 +1,7 @@
 (in-package :pddl.loop-planner)
 (cl-syntax:use-syntax :annot)
 
-(defvar *fd-dir* (pathname-as-directory #p"~/repos/downward"))
+(defparameter *fd-dir* (pathname-as-directory #p"~/repos/downward"))
 
 @export
 (defvar *fd-options* "ipc seq-sat-lama-2011")
@@ -16,7 +16,7 @@
   (pathname-as-directory 
    (asdf:system-source-directory :pddl.loop-planner)))
 
-(defvar *test-problem*
+(defparameter *test-problem*
   (merge-pathnames "planner-scripts/test-problem.sh" *system*))
 
 @export
