@@ -40,21 +40,22 @@ returns a list of pathnames of plan files.
                      memory
                      time-limit
                      hard-time-limit)
-  (run `(,*test-problem* ,@(when verbose `(-v))
-                         ,@(when memory `(-m ,memory))
-                         ,@(when time-limit `(-t ,time-limit))
-                         ,@(when hard-time-limit `("-T" ,hard-time-limit))
-                         ,@(when options `(-o ,options))
-                         ,problem ,domain)
-       :show t
-       :output stream
-       :on-error nil)
-  (sort (run `(pipe (find ,(pathname-directory-pathname problem)
-                          -maxdepth 1
-                          -mindepth 1)
-                    (grep (,(pathname-name problem) .plan)))
-             :show t
-             :output :lines
-             :on-error nil)
-        #'string<))
+  (ignore-errors
+    (run `(,*test-problem* ,@(when verbose `(-v))
+                           ,@(when memory `(-m ,memory))
+                           ,@(when time-limit `(-t ,time-limit))
+                           ,@(when hard-time-limit `("-T" ,hard-time-limit))
+                           ,@(when options `(-o ,options))
+                           ,problem ,domain)
+         :show t
+         :output stream
+         :on-error nil)
+    (sort (run `(pipe (find ,(pathname-directory-pathname problem)
+                            -maxdepth 1
+                            -mindepth 1)
+                      (grep (,(pathname-name problem) .plan)))
+               :show t
+               :output :lines
+               :on-error nil)
+          #'string<)))
 
