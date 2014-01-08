@@ -5,11 +5,14 @@
 (defvar *validate* (merge-pathnames #p"src/validate" *fd-dir*))
 
 @export
+(defvar *validator-verbosity* nil)
+
+@export
 (defun validate-plan (domain-pathname
                       problem-pathname
                       plan-pathname
                       &key
-                      verbose
+                      (verbose *validator-verbosity*)
                       (stream *standard-output*))
   (handler-return ((error (constantly nil)))
     (run `(,*validate* ,@(when verbose '(-v))
