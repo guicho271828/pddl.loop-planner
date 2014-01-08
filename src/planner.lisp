@@ -40,22 +40,33 @@ returns a list of pathnames of plan files.
                      memory
                      time-limit
                      hard-time-limit)
-  (ignore-errors
-    (run `(,*test-problem* ,@(when verbose `(-v))
-                           ,@(when memory `(-m ,memory))
-                           ,@(when time-limit `(-t ,time-limit))
-                           ,@(when hard-time-limit `("-T" ,hard-time-limit))
-                           ,@(when options `(-o ,options))
-                           ,problem ,domain)
-         :show t
-         :output stream
-         :on-error nil)
-    (sort (run `(pipe (find ,(pathname-directory-pathname problem)
-                            -maxdepth 1
-                            -mindepth 1)
-                      (grep (,(pathname-name problem) .plan)))
-               :show t
-               :output :lines
-               :on-error nil)
-          #'string<)))
+  (block run
+    (unwind-protect
+         (run `(,*test-problem* ,@(when verbose `(-v))
+                                ,@(when memory `(-m ,memory))
+                                ,@(when time-limit `(-t ,time-limit))
+                                ,@(when hard-time-limit `("-T" ,hard-time-limit))
+                                ,@(when options `(-o ,options))
+                                ,problem ,domain)
+              :show t
+              :output stream
+              :on-error (lambda (c)
+                          (declare (ignore c))
+                          (return-from run)))
+      (run `(pkill "-P" 1 "test-problem.sh")
+           :show t
+           :output stream
+           :on-error (lambda (c)
+                       (declare (ignore c))
+                       (return-from run)))))
+  (sort (run `(pipe (find ,(pathname-directory-pathname problem)
+                          -maxdepth 1
+                          -mindepth 1)
+                    (grep (,(pathname-name problem) .plan)))
+             :show t
+             :output :lines
+             :on-error (lambda (c)
+                         (declare (ignore c))
+                         (return-from test-problem nil)))
+        #'string<))
 
