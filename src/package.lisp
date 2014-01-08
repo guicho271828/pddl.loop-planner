@@ -8,6 +8,7 @@
         :guicho-red-black-tree
         :bordeaux-threads
         :annot.doc
+        :eazylazy
         :lparallel)
   (:shadow :minimize :maximize)
-  (:shadowing-import-from :pddl.loop-detection :force))
+  (:shadowing-import-from :eazylazy :force :delay))
