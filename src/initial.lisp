@@ -6,11 +6,11 @@
 
 @export
 (defparameter *memory-limit-for-initial/final*
-  (parse-integer
-   (run/s `(pipe (free)
-                 (tr -s " ")
-                 (grep "buffers/cache")
-                 (cut :delimiter " " :f 3))))
+  (/ (parse-integer
+      (run/s `(pipe (free)
+                    (tr -s " ")
+                    (grep "buffers/cache")
+                    (cut :delimiter " " :f 3)))) 2)
   "A memory limit [kB] for the initial and final search.
 This value can be modified with (setf *memory-limit-for-initial/final* newval).")
 
