@@ -20,6 +20,17 @@
   (merge-pathnames "planner-scripts/test-problem.sh" *system*))
 
 @export
+(define-condition plan-not-found (warning)
+  ((problem-path :initarg :problem-path)
+   (domain-path :initarg :domain-path))
+  (:report (lambda (c s)
+             (with-slots (problem-path domain-path) c
+                (format s "Failed to find a plan!~%Domain:~a~%Problem:~a"
+                        problem-path domain-path)))))
+
+
+
+@export
 @doc " Runs
    {(asdf:system-source-directory :pddl.loop-planner)}/test-problem.sh
 with the following arguments.
@@ -53,11 +64,12 @@ returns a list of pathnames of plan files.
               :on-error (lambda (c)
                           (declare (ignore c))
                           (return-from run)))
+      (format stream "~&The planner was killed...")
       (run `(pkill "-P" 1 "test-problem.sh")
            :show t
            :output stream
            :on-error (lambda (c)
-                       (declare (ignore c))
+                       @ignore c
                        (return-from run)))))
   (sort (run `(pipe (find ,(pathname-directory-pathname problem)
                           -maxdepth 1
@@ -67,6 +79,8 @@ returns a list of pathnames of plan files.
              :output :lines
              :on-error (lambda (c)
                          (declare (ignore c))
+                         (warn 'plan-not-found
+                               :problem-path problem
+                               :domain-path domain)
                          (return-from test-problem nil)))
         #'string<))
-
