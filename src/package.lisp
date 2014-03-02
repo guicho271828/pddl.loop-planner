@@ -9,6 +9,7 @@
         :bordeaux-threads
         :annot.doc
         :eazylazy
-        :lparallel)
+        :lparallel
+        :ppcre)
   (:shadow :minimize :maximize)
   (:shadowing-import-from :eazylazy :force :delay))

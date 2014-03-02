@@ -28,7 +28,32 @@
                 (format s "Failed to find a plan!~%Domain:~a~%Problem:~a"
                         problem-path domain-path)))))
 
+;; http://www.ymeme.com/slurping-a-file-common-lisp-83.html
+(defun slurp (stream)
+  (let ((seq (make-array (file-length stream)
+                         :element-type 'character
+                         :fill-pointer t)))
+    (setf (fill-pointer seq) (read-sequence seq stream))
+    seq))
 
+(defun read-file (path)
+  (with-input-from-file (s path)
+    (slurp s)))
+
+(defun pathname-p (path)
+  (pathnamep path))
+
+(defun elapsed-time (problem kind)
+  (ematch (pathname problem)
+    ((pathname- name directory)
+     (register-groups-bind (user-in-seconds)
+         ("user ([.0-9]*)"
+          (read-file
+           (make-pathname
+            :type "log"
+            :directory directory
+            :name (concatenate 'string name "." kind))))
+       (read-from-string user-in-seconds)))))
 
 @export
 @doc " Runs
@@ -71,16 +96,20 @@ returns a list of pathnames of plan files.
            :on-error (lambda (c)
                        @ignore c
                        (return-from run)))))
-  (sort (run `(pipe (find ,(pathname-directory-pathname problem)
-                          -maxdepth 1
-                          -mindepth 1)
-                    (grep (,(pathname-name problem) .plan)))
-             :show t
-             :output :lines
-             :on-error (lambda (c)
-                         (declare (ignore c))
-                         (warn 'plan-not-found
-                               :problem-path problem
-                               :domain-path domain)
-                         (return-from test-problem nil)))
-        #'string<))
+  (values
+   (sort (run `(pipe (find ,(pathname-directory-pathname problem)
+                           -maxdepth 1
+                           -mindepth 1)
+                     (grep (,(pathname-name problem) .plan)))
+              :show t
+              :output :lines
+              :on-error (lambda (c)
+                          (declare (ignore c))
+                          (warn 'plan-not-found
+                                :problem-path problem
+                                :domain-path domain)
+                          (return-from test-problem nil)))
+         #'string<)
+   (elapsed-time problem "translate")
+   (elapsed-time problem "preprocess")
+   (elapsed-time problem "search")))

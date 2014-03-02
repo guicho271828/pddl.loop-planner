@@ -26,7 +26,8 @@
                :iterate
                :alexandria
                :osicat
-               :inferior-shell)
+               :inferior-shell
+               :cl-ppcre)
   :components ((:file "src/package")
                (:module "src"
                 :components

@@ -63,6 +63,22 @@
       (format t "~%joined!" )
       (pass))))
 
+
+(test :test-problem
+  (let ((*default-pathname-defaults*
+         (asdf:system-source-directory :pddl.loop-planner-test)))
+    (multiple-value-bind (plan-path-list
+                          translate-time
+                          preprocess-time
+                          search-time)
+        (test-problem
+         (merge-pathnames "t/problem.pddl")
+         (merge-pathnames "t/domain.pddl"))
+      (is (not (null plan-path-list)))
+      (is (numberp (print translate-time)))
+      (is (numberp (print preprocess-time)))
+      (is (numberp (print search-time))))))
+
 ;;;; integration tests
 
 (test (get-plan-1)
