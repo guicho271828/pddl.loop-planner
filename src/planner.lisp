@@ -40,8 +40,9 @@
   (with-input-from-file (s path)
     (slurp s)))
 
-(defun pathname-p (path)
-  (pathnamep path))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defun pathname-p (path)
+    (pathnamep path)))
 
 (defun elapsed-time (problem kind)
   (ematch (pathname problem)
@@ -53,6 +54,7 @@
             :type "log"
             :directory directory
             :name (concatenate 'string name "." kind))))
+       (break+ user-in-seconds)
        (read-from-string user-in-seconds)))))
 
 @export
