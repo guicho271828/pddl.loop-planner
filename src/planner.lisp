@@ -54,7 +54,6 @@
             :type "log"
             :directory directory
             :name (concatenate 'string name "." kind))))
-       (break+ user-in-seconds)
        (read-from-string user-in-seconds)))))
 
 @export
