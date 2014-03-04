@@ -56,6 +56,19 @@
             :name (concatenate 'string name "." kind))))
        (read-from-string user-in-seconds)))))
 
+(defun max-memory (problem kind)
+  "in kB"
+  (ematch (pathname problem)
+    ((pathname- name directory)
+     (register-groups-bind (user-in-seconds)
+         ("maxmem ([.0-9]*)"
+          (read-file
+           (make-pathname
+            :type "log"
+            :directory directory
+            :name (concatenate 'string name "." kind))))
+       (read-from-string user-in-seconds)))))
+
 @export
 @doc " Runs
    {(asdf:system-source-directory :pddl.loop-planner)}/test-problem.sh
@@ -113,4 +126,7 @@ returns a list of pathnames of plan files.
          #'string<)
    (elapsed-time problem "translate")
    (elapsed-time problem "preprocess")
-   (elapsed-time problem "search")))
+   (elapsed-time problem "search")
+   (maxmem problem "translate")
+   (maxmem problem "preprocess")
+   (maxmem problem "search")))
