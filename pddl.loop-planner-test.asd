@@ -23,4 +23,6 @@
                 ((:file :pddl.loop-planner)
                  (:file :validate)
                  (:file :total-plan))))
-  :perform (load-op :after (op c) (asdf:clear-system c)))
+  :perform (load-op :after (op c) 
+		    (eval (read-from-string "(fiveam:run! :pddl.loop-planner)"))
+		    (asdf:clear-system c)))
