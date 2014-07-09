@@ -45,6 +45,7 @@
     (pathnamep path)))
 
 (defun elapsed-time (problem kind)
+  "Parse the log file and extract the elapsed time in seconds"
   (ematch (pathname problem)
     ((pathname- name directory)
      (register-groups-bind (user-in-seconds)
@@ -57,7 +58,7 @@
        (read-from-string user-in-seconds)))))
 
 (defun max-memory (problem kind)
-  "in kB"
+  "Parse the log file and extract the elapsed time in kB"
   (ematch (pathname problem)
     ((pathname- name directory)
      (register-groups-bind (user-in-seconds)
