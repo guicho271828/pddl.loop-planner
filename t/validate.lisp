@@ -13,7 +13,7 @@
                    (asdf:system-relative-pathname
                     :pddl.loop-planner-test
                     "t/pfile1.plan.1")))
-  (signals error
+  (is-false
     (validate-plan (asdf:system-relative-pathname
                     :pddl.loop-planner-test
                     "t/domain.pddl")
