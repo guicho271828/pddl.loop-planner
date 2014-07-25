@@ -1,15 +1,19 @@
 (in-package :cl-user)
 (defpackage pddl.loop-planner
-  (:use :cl :pddl :pddl.scheduler :pddl.loop-detection
+  (:use :cl
+        :pddl
+        :pddl.scheduler
+        :pddl.loop-detection
         :pddl.plan-optimizer
-        :optima :iterate :alexandria :osicat :inferior-shell
-        :guicho-utilities.threading
+        :optima
+        :iterate
+        :alexandria
+        :osicat
+        :inferior-shell
         :guicho-utilities
         :guicho-red-black-tree
-        :bordeaux-threads
         :annot.doc
         :eazylazy
-        :lparallel
         :ppcre)
   (:shadow :minimize :maximize)
   (:shadowing-import-from :eazylazy :force :delay))
