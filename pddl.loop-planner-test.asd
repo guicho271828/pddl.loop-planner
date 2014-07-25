@@ -17,6 +17,7 @@
                 :components
                 ((:file :package)
                  (:file :validate)
+                 (:file :test-problem)
                  (:file :total-plan))))
   :perform (load-op :after (op c) 
 		    (eval (read-from-string "(fiveam:run! :pddl.loop-planner)"))

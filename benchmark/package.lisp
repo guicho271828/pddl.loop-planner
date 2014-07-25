@@ -1,10 +1,11 @@
+
 #|
   This file is a part of pddl.loop-planner project.
   Copyright (c) 2013 Masataro Asai
 |#
 
 (in-package :cl-user)
-(defpackage pddl.loop-planner-test
+(defpackage pddl.loop-planner-benchmark
   (:use :cl
         :iterate
 	:alexandria
@@ -20,5 +21,13 @@
 	:pddl.instances
         :fiveam)
   (:shadow :fail :place :maximize :minimize :force :run :!))
-(in-package :pddl.loop-planner-test)
-(def-suite :pddl.loop-planner)
+(in-package :pddl.loop-planner-benchmark)
+
+(defparameter *log-dir*
+  (merge-pathnames
+   #p"Dropbox/loop-planner/"
+   (user-homedir-pathname)))
+(ensure-directories-exist *log-dir*)
+
+(defparameter *log-name*
+  (merge-pathnames #p"logfile" *log-dir*))

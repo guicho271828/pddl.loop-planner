@@ -12,7 +12,6 @@
         :inferior-shell
         :guicho-utilities
         :guicho-red-black-tree
-        :annot.doc
         :eazylazy
         :ppcre)
   (:shadow :minimize :maximize)

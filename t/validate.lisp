@@ -3,23 +3,14 @@
 (in-suite :pddl.loop-planner)
 
 (test validate
+  (let ((*default-pathname-defaults*
+         (asdf:system-relative-pathname
+          :pddl.loop-planner-test "t/data")))
   (finishes
-    (validate-plan (asdf:system-relative-pathname
-                    :pddl.loop-planner-test
-                    "t/domain.pddl")
-                   (asdf:system-relative-pathname
-                    :pddl.loop-planner-test
-                    "t/pfile1")
-                   (asdf:system-relative-pathname
-                    :pddl.loop-planner-test
-                    "t/pfile1.plan.1")))
+    (validate-plan "domain.pddl"
+                   "problem.pddl"
+                   "problem.plan"))
   (is-false
-    (validate-plan (asdf:system-relative-pathname
-                    :pddl.loop-planner-test
-                    "t/domain.pddl")
-                   (asdf:system-relative-pathname
-                    :pddl.loop-planner-test
-                    "t/pfile1")
-                   (asdf:system-relative-pathname
-                    :pddl.loop-planner-test
-                    "t/pfile1.plan.1.dummy"))))
+    (validate-plan "domain.pddl"
+                   "problem.pddl"
+                   "problem.plan.dummy"))))

@@ -1,6 +1,9 @@
 
 (in-package :pddl.loop-planner-test)
 
+
+
+
 (defun benchmark ()
   (log:config :daily *log-name*)
   (log:info "start planning")

@@ -12,12 +12,4 @@
 ;;        :directory tmpdir)
 ;;       (inferior-shell:run `(rm -r ,tmpdir)))))
 
-(defparameter *log-dir*
-  (merge-pathnames
-   #p"Dropbox/loop-planner/"
-   (user-homedir-pathname)))
-(ensure-directories-exist *log-dir*)
-
-(defparameter *log-name*
-  (merge-pathnames #p"logfile" *log-dir*))
 
