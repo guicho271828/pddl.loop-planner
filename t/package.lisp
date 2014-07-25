@@ -14,11 +14,11 @@
         :inferior-shell
         :optima
 	:pddl
+        :pddl.scheduler
         :pddl.loop-detection
         :pddl.loop-planner
-	:pddl.scheduler
-	:pddl.instances
         :fiveam)
-  (:shadow :fail :place :maximize :minimize :force :run :!))
+  (:shadowing-import-from :pddl :maximize :minimize)
+  (:shadow :fail :place :force :run :!))
 (in-package :pddl.loop-planner-test)
 (def-suite :pddl.loop-planner)

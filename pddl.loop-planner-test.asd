@@ -16,6 +16,7 @@
   :components ((:module "t"
                 :components
                 ((:file :package)
+                 (:file :basis)
                  (:file :validate)
                  (:file :test-problem)
                  (:file :total-plan))))

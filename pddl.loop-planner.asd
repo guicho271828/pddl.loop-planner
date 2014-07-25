@@ -16,12 +16,9 @@
   :version "0.1"
   :author "Masataro Asai"
   :license ""
-  :depends-on (:pddl
-               :pddl.scheduler
-               :pddl.loop-detection
-               :guicho-utilities.threading
-               :bordeaux-threads
-               :lparallel
+  :depends-on (:pddl.loop-detection
+               :cl-syntax-annot
+               :cl-rlimit
                :optima
                :iterate
                :alexandria
@@ -31,7 +28,9 @@
   :components ((:file "src/package")
                (:module "src"
                 :components
-                ()
+                ((:file :write-problem)
+                 (:file :evaluator)
+                 (:file :planner))
                 :depends-on ("src/package")))
   :description ""
   :long-description

@@ -5,6 +5,7 @@
         :pddl.scheduler
         :pddl.loop-detection
         :pddl.plan-optimizer
+        :cl-rlimit
         :optima
         :iterate
         :alexandria
@@ -13,6 +14,7 @@
         :guicho-utilities
         :guicho-red-black-tree
         :eazylazy
-        :ppcre)
+        :ppcre
+        :cl-syntax)
   (:shadow :minimize :maximize)
   (:shadowing-import-from :eazylazy :force :delay))
