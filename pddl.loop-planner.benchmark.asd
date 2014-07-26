@@ -6,15 +6,14 @@
 (defsystem pddl.loop-planner.benchmark
   :author "Masataro Asai"
   :license ""
-  :depends-on (:pddl.instances
+  :depends-on (:pddl.loop-planner
+               :pddl.instances
                :pddl.instances.cell-assembly-loop
-	       :pddl.loop-planner
-               :pddl.loop-planner-test
-               :pddl-test
-               :repl-utilities
+               :pddl.instances.cell-assembly-eachparts
                :fiveam
                :log4cl)
-  :components ((:module "t"
+  :components ((:module :benchmark
                 :components
-                ((:file :benchmark))))
+                ((:file :package)
+                 (:file :benchmark))))
   :perform (load-op :after (op c) (asdf:clear-system c)))

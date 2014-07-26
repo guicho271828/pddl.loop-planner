@@ -1,5 +1,5 @@
 
-(in-package :pddl.loop-planner-test)
+(in-package :pddl.loop-planner.benchmark)
 
 
 

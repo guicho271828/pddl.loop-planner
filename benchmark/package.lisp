@@ -5,11 +5,10 @@
 |#
 
 (in-package :cl-user)
-(defpackage pddl.loop-planner-benchmark
+(defpackage pddl.loop-planner.benchmark
   (:use :cl
         :iterate
 	:alexandria
-        :osicat
         :guicho-utilities
         :guicho-red-black-tree
         :inferior-shell
@@ -21,7 +20,7 @@
 	:pddl.instances
         :fiveam)
   (:shadow :fail :place :maximize :minimize :force :run :!))
-(in-package :pddl.loop-planner-benchmark)
+(in-package :pddl.loop-planner.benchmark)
 
 (defparameter *log-dir*
   (merge-pathnames
