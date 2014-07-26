@@ -30,7 +30,7 @@
                 :components
                 ((:file :write-problem)
                  (:file :evaluator)
-                 (:file :planner))
+                 (:file :test-problem))
                 :depends-on ("src/package")))
   :description ""
   :long-description
