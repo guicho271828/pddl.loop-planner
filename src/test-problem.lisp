@@ -119,15 +119,16 @@ returns:
            ,@(when hard-time-limit `("-T" ,(ulimit hard-time-limit)))
            ,@(when options `(-o ,options))
            ,problem ,domain)
-         :show t
-         :output stream))
+         :show verbose
+         :output stream
+         :error-output (if verbose stream nil)))
   (values
    (sort (block nil
            (run `(pipe (find ,(pathname-directory-pathname problem)
                              -maxdepth 1
                              -mindepth 1)
                        (grep (,(pathname-name problem) .plan)))
-                :show t
+                :show verbose
                 :output :lines
                 :on-error (lambda (c)
                             (declare (ignore c))

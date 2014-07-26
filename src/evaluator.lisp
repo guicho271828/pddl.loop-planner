@@ -5,12 +5,13 @@
 @export
 (defun evaluate-loop-problem (problem ss schedule movements component
                               &key verbose)
-  (let* ((*problem*
+  (let* ((*domain* (domain problem))
+         (*problem*
           (apply #'loop-problem problem ss schedule movements component))
          (tmpdir
           (mktemp (name *problem*)))
          (domain-path
-          (write-pddl (domain *problem*) "domain.pddl" tmpdir verbose))
+          (write-pddl *domain* "domain.pddl" tmpdir verbose))
          (problem-path
           (write-pddl *problem* "problem.pddl" tmpdir verbose))
          (plan-path-list
@@ -21,6 +22,6 @@
                (timed-action-end
                 (lastcar
                  (sort-schedule
-                  (reschedule (pddl-plan :actions (parse-plan path))
-                              :minimum-slack)))))))))
+                  (reschedule (pddl-plan :path path) :minimum-slack))))))
+            :initial-value MOST-POSITIVE-FIXNUM)))
 

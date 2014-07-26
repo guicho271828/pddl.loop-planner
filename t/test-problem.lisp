@@ -16,3 +16,13 @@
       (is (numberp (print preprocess-time)))
       (is (numberp (print search-time))))))
 
+
+(test exploit-loop-problems-with-evaluation
+  (finishes
+    (let ((*domain* make) (*problem* makep))
+      (print
+       (multiple-value-list
+        (exploit-loop-problems
+         (pddl-plan :actions (parse-plan +makeplan+))
+         (object *problem* :p1)
+         #'evaluate-loop-problem))))))
