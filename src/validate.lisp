@@ -12,9 +12,9 @@
                         (stream *standard-output*))
   (handler-return ((error (constantly nil)))
     (run `(,*validate* ,@(when verbose '(-v))
-                       ,domain-pathname
-                       ,problem-pathname
-                       ,plan-pathname)
+                       ,(merge-pathnames domain-pathname)
+                       ,(merge-pathnames problem-pathname)
+                       ,(merge-pathnames plan-pathname))
          :show verbose
          :output (when verbose stream))
     t))

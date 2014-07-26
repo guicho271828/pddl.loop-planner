@@ -5,7 +5,7 @@
 (test validate
   (let ((*default-pathname-defaults*
          (asdf:system-relative-pathname
-          :pddl.loop-planner-test "t/data")))
+          :pddl.loop-planner-test "t/data/")))
     (is-true
       (validate-plan "domain.pddl"
                      "problem.pddl"
