@@ -20,7 +20,7 @@
 (test exploit-loop-problems-with-evaluation
   (finishes
     (let ((*domain* make) (*problem* makep))
-      (print
+      (format t "~{~&~a~%~}"
        (multiple-value-list
         (exploit-loop-problems
          (pddl-plan :actions (parse-plan +makeplan+))
