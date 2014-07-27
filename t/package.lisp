@@ -17,6 +17,7 @@
         :pddl.scheduler
         :pddl.loop-detection
         :pddl.loop-planner
+        :bordeaux-threads
         :fiveam)
   (:shadowing-import-from :pddl :maximize :minimize)
   (:shadow :fail :place :force :run :!))

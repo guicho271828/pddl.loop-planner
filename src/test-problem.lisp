@@ -74,8 +74,8 @@
 
 ;;;; main function
 
-(declaim (ftype (function (pathname
-                           pathname
+(declaim (ftype (function ((or string pathname)
+                           (or string pathname)
                            &key
                            (:stream stream)
                            (:options string)
@@ -83,9 +83,7 @@
                            (:memory (or integer keyword))
                            (:time-limit (or integer keyword))
                            (:hard-time-limit (or integer keyword)))
-                          (values list
-                                  real real real
-                                  real real real))
+                          (values list real real real real real real))
                 test-problem))
 
 @export
@@ -98,9 +96,7 @@
                        (memory (rlimit +rlimit-address-space+))
                        (time-limit (rlimit +rlimit-cpu-time+))
                        (hard-time-limit (rlimit +rlimit-cpu-time+)))
-  " Runs
-   {(asdf:system-source-directory :pddl.loop-planner)}/test-problem.sh
-with the following arguments.
+  "Runs test-problem.sh with the following arguments.
 
   problem, domain : the pathnames of pddl files.
   options : a string which will be the search and heuristic options to downward.
@@ -111,37 +107,51 @@ returns:
   a list of pathnames of plan files
   elapsed-times of translate, preprocess, search
   max-memory of translate, preprocess, search"
-  (ignore-errors
-    (run `(,*test-problem*
-           ,@(when verbose `(-v))
-           ,@(when memory `(-m ,(ulimit memory)))
-           ,@(when time-limit `(-t ,(ulimit time-limit)))
-           ,@(when hard-time-limit `("-T" ,(ulimit hard-time-limit)))
-           ,@(when options `(-o ,options))
-           ,problem ,domain)
-         :show verbose
-         :output stream
-         :error-output (if verbose stream nil)))
-  (values
-   (sort (block nil
-           (run `(pipe (find ,(pathname-directory-pathname problem)
-                             -maxdepth 1
-                             -mindepth 1)
-                       (grep (,(pathname-name problem) .plan)))
-                :show verbose
-                :output :lines
-                :on-error (lambda (c)
-                            (declare (ignore c))
-                            (warn 'plan-not-found
-                                  :problem-path problem
-                                  :domain-path domain)
-                            (return nil))))
-         #'string<)
-   (elapsed-time problem "translate")
-   (elapsed-time problem "preprocess")
-   (elapsed-time problem "search")
-   (max-memory problem "translate")
-   (max-memory problem "preprocess")
-   (max-memory problem "search")))
-
+  (let ((problem (pathname problem))
+        (domain (pathname domain)))
+    (let ((process
+           (sb-ext:run-program
+            *test-problem*
+            (let ((*print-case* :downcase))
+              (mapcar #'princ-to-string
+                      `(,@(when verbose `(-v))
+                          -m ,(ulimit memory)
+                          -t ,(ulimit time-limit)
+                          "-T" ,(ulimit hard-time-limit)
+                          -o ,options
+                          ,problem ,domain)))
+            :wait nil :output stream :error :output)))
+      (unwind-protect
+           (sb-ext:process-wait process t)
+        (when (sb-ext:process-alive-p process)
+          (sb-ext:process-kill process 15)
+          (when verbose
+            (format t "Sending singal 15 to the test-probelm process...")))))
+    (handler-case
+      (values
+       (sort (block nil
+               (run `(pipe (find ,(pathname-directory-pathname problem)
+                                 -maxdepth 1
+                                 -mindepth 1)
+                           (grep (,(pathname-name problem) .plan)))
+                    :show verbose
+                    :output :lines
+                    :on-error (lambda (c)
+                                (declare (ignore c))
+                                (warn 'plan-not-found
+                                      :problem-path problem
+                                      :domain-path domain)
+                                (return nil))))
+             #'string<)
+       (elapsed-time problem "translate")
+       (elapsed-time problem "preprocess")
+       (elapsed-time problem "search")
+       (max-memory problem "translate")
+       (max-memory problem "preprocess")
+       (max-memory problem "search"))
+    (file-error (c)
+      (format *error-output*
+              " Planning failed, File ~a not found!"
+              (file-error-pathname c))
+      (values nil 0 0 0 0 0 0)))))
 

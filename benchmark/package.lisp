@@ -9,6 +9,7 @@
   (:use :cl
         :iterate
 	:alexandria
+        :bordeaux-threads
         :guicho-utilities
         :guicho-red-black-tree
         :inferior-shell

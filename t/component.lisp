@@ -1,12 +1,6 @@
 (in-package :pddl.loop-planner-test)
 (in-suite :pddl.loop-planner)
 
-
-
-
-
-
-
 (test elp-with-e-with-component
   (finishes
     (let ((*domain* assemble) (*problem* assemblep))

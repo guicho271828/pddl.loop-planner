@@ -5,6 +5,8 @@
 @export
 (defun evaluate-loop-problem (problem ss schedule movements component
                               &key verbose)
+  "Evaluates the real cost of a MFP path of a steady state. Meant to be
+called by exploit-loop-problems."
   (let* ((*domain* (domain problem))
          (*problem*
           (apply #'loop-problem problem ss schedule movements component))

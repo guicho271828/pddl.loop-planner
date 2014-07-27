@@ -1,7 +1,10 @@
+
 (in-package :pddl.loop-planner-test)
 (in-suite :pddl.loop-planner)
 
-(test :test-problem
+;; tests with-timeout and run-program
+
+(test test-problem
   (let ((*default-pathname-defaults*
          (asdf:system-source-directory :pddl.loop-planner-test)))
     (multiple-value-bind (plan-path-list
@@ -17,7 +20,8 @@
       (is (numberp (print search-time))))))
 
 
-(test exploit-loop-problems-with-evaluation
+(test (exploit-loop-problems-with-evaluation
+       :depends-on test-problem)
   (finishes
     (let ((*domain* make) (*problem* makep))
       (format t "~{~&~a~%~}"
@@ -25,4 +29,6 @@
         (exploit-loop-problems
          (pddl-plan :actions (parse-plan +makeplan+))
          (object *problem* :p1)
-         #'evaluate-loop-problem))))))
+         #'evaluate-loop-problem
+         :verbose t
+         :timeout 20))))))
