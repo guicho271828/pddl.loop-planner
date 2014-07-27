@@ -3,6 +3,9 @@
 (use-syntax :annot)
 
 @export
+(defclass fd-evaluation-result (evaluation-result pathnamable) ())
+
+@export
 (defun evaluate-loop-problem (problem ss schedule movements component
                               &key verbose)
   "Evaluates the real cost of a MFP path of a steady state. Meant to be
@@ -18,12 +21,20 @@ called by exploit-loop-problems."
           (write-pddl *problem* "problem.pddl" tmpdir verbose))
          (plan-path-list
           (test-problem problem-path domain-path :verbose verbose)))
-    (reduce #'min plan-path-list :key
-            (lambda (path)
-              (timed-state-time 
-               (timed-action-end
-                (lastcar
-                 (sort-schedule
-                  (reschedule (pddl-plan :path path) :minimum-slack))))))
-            :initial-value MOST-POSITIVE-FIXNUM)))
+    (reduce #'evaluation-result-min
+            (mapcar (lambda (path)
+                      (make-instance
+                       'fd-evaluation-result
+                       :path path
+                       :ss ss
+                       :cost
+                       (timed-state-time 
+                        (timed-action-end
+                         (lastcar
+                          (sort-schedule
+                           (reschedule (pddl-plan :path path)
+                                       :minimum-slack)))))))
+                    plan-path-list)
+            :initial-value (funcall (constant-results MOST-POSITIVE-FIXNUM)
+                                    *problem* ss))))
 
