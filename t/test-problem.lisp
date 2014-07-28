@@ -20,16 +20,24 @@
       (is (numberp (print search-time))))))
 
 
-(test (exploit-loop-problems-with-evaluation
-       :depends-on test-problem)
-  (time (let ((*domain* pddl.instances:cell-assembly-eachparts)
-              (*problem* pddl.instances:cell-assembly-model2a-each-1))
-          (exploit-loop-problems
-           (pddl-plan :path "/mnt/video/guicho/repos/lisp/pddl/data/model2a-each/p0001.plan.1")
-           (list (object *problem* :b-0)
-                 (object *problem* :part-a-0)
-                 (object *problem* :part-b-0)
-                 (object *problem* :part-c-0))
-           #'evaluate-loop-problem
-           :verbose t
-           :timeout 30))))
+(test exploit-loop-problems-with-evaluation
+  (finishes
+    (let ((*domain* make) (*problem* makep))
+      (describe
+       (exploit-loop-problems
+         (pddl-plan :actions (parse-plan +makeplan+))
+         (object *problem* :p1)
+         #'evaluate-loop-problem
+         :verbose t)))))
+
+(test exploit-loop-problems-with-timeout
+  (finishes
+    (let ((*domain* make) (*problem* makep))
+      (describe
+       (time
+        (exploit-loop-problems
+         (pddl-plan :actions (parse-plan +makeplan+))
+         (object *problem* :p1)
+         #'evaluate-loop-problem
+         :verbose t
+         :timeout 2))))))
