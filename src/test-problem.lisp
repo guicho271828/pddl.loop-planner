@@ -4,7 +4,10 @@
 ;;;; parameters
 
 (defparameter *fd-dir* (pathname-as-directory #p"~/repos/downward"))
-(defvar *fd-options* "ipc seq-sat-lama-2011")
+;; @export
+;; (defparameter *fd-options* "--search astar(lmcut())")
+@export
+(defparameter *fd-options* "ipc seq-sat-lama-2011")
 (defvar *translate* (merge-pathnames "src/translate/translate.py" *fd-dir*))
 (defvar *preprocess* (merge-pathnames "src/preprocess/preprocess" *fd-dir*))
 (defvar *search* (merge-pathnames "src/search/downward" *fd-dir*))
@@ -13,6 +16,7 @@
    (asdf:system-source-directory :pddl.loop-planner)))
 (defparameter *test-problem*
   (merge-pathnames "planner-scripts/test-problem.sh" *system*))
+
 ;;;; helpers
 
 @export
@@ -41,36 +45,59 @@
     "defined for optima matcher"
     (pathnamep path)))
 
+(declaim (ftype (function ((or pathname string) string) real)
+                elapsed-time max-memory))
+
 (defun elapsed-time (problem kind)
   "Parse the log file and extract the elapsed time in seconds"
   (ematch (pathname problem)
     ((pathname- name directory)
-     (register-groups-bind (user-in-seconds)
-         ("user ([.0-9]*)"
-          (read-file
-           (make-pathname
-            :type "log"
-            :directory directory
-            :name (concatenate 'string name "." kind))))
-       (read-from-string user-in-seconds)))))
+     (handler-case
+         (or (register-groups-bind (user-in-seconds)
+                 ("user ([.0-9]*)"
+                  (read-file
+                   (make-pathname
+                    :type "log"
+                    :directory directory
+                    :name (concatenate 'string name "." kind))))
+               (if user-in-seconds
+                   (read-from-string user-in-seconds)
+                   -1))
+             -1)
+       (error (c)
+         (declare (ignore c))
+         -1)))))
 
 (defun max-memory (problem kind)
   "Parse the log file and extract the elapsed time in kB"
   (ematch (pathname problem)
     ((pathname- name directory)
-     (register-groups-bind (user-in-seconds)
-         ("maxmem ([.0-9]*)"
-          (read-file
-           (make-pathname
-            :type "log"
-            :directory directory
-            :name (concatenate 'string name "." kind))))
-       (read-from-string user-in-seconds)))))
+     (handler-case
+         (or (register-groups-bind (user-in-seconds)
+                 ("maxmem ([.0-9]*)"
+                  (read-file
+                   (make-pathname
+                    :type "log"
+                    :directory directory
+                    :name (concatenate 'string name "." kind))))
+               (if user-in-seconds
+                   (read-from-string user-in-seconds)
+                   -1))
+             -1)
+       (error (c)
+         (declare (ignore c))
+         -1)))))
+
+;;;; wrapper functions
+
 
 (defun ulimit (rlimit)
   (case rlimit
     ((:infinity) "unlimited")
     (t rlimit)))
+
+(defun wrap-option (string)
+  (format nil "~{\"~a\" ~}" (split " " string)))
 
 ;;;; main function
 
@@ -80,9 +107,9 @@
                            (:stream stream)
                            (:options string)
                            (:verbose boolean)
-                           (:memory (or integer keyword))
-                           (:time-limit (or integer keyword))
-                           (:hard-time-limit (or integer keyword)))
+                           (:memory (or fixnum keyword))
+                           (:time-limit (or fixnum keyword))
+                           (:hard-time-limit (or fixnum keyword)))
                           (values list real real real real real real))
                 test-problem))
 
@@ -91,11 +118,11 @@
                      domain
                      &key
                        (stream *standard-output*)
-                       (options *fd-options*)
+                       (options (wrap-option *fd-options*))
                        verbose
-                       (memory (rlimit +rlimit-address-space+))
-                       (time-limit (rlimit +rlimit-cpu-time+))
-                       (hard-time-limit (rlimit +rlimit-cpu-time+)))
+                       (memory *memory-limit*)
+                       (time-limit *soft-time-limit*)
+                       (hard-time-limit *hard-time-limit*))
   "Runs test-problem.sh with the following arguments.
 
   problem, domain : the pathnames of pddl files.
