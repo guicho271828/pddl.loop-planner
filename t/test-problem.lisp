@@ -23,21 +23,19 @@
 (test exploit-loop-problems-with-evaluation
   (finishes
     (let ((*domain* make) (*problem* makep))
-      (describe
-       (exploit-loop-problems
-         (pddl-plan :actions (parse-plan +makeplan+))
-         (object *problem* :p1)
-         #'evaluate-loop-problem
-         :verbose t)))))
+      (exploit-loop-problems
+       (pddl-plan :actions (parse-plan +makeplan+))
+       (object *problem* :p1)
+       #'evaluate-loop-problem
+       :verbose t))))
 
 (test exploit-loop-problems-with-timeout
   (finishes
     (let ((*domain* make) (*problem* makep))
-      (describe
-       (time
-        (exploit-loop-problems
-         (pddl-plan :actions (parse-plan +makeplan+))
-         (object *problem* :p1)
-         #'evaluate-loop-problem
-         :verbose t
-         :timeout 2))))))
+      (time
+       (exploit-loop-problems
+        (pddl-plan :actions (parse-plan +makeplan+))
+        (object *problem* :p1)
+        #'evaluate-loop-problem
+        :verbose t
+        :timeout 2)))))
