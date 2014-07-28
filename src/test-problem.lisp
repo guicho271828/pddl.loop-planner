@@ -126,7 +126,7 @@ returns:
         (when (sb-ext:process-alive-p process)
           (sb-ext:process-kill process 15)
           (when verbose
-            (format t "Sending singal 15 to the test-probelm process...")))))
+            (format t "~&Sending signal 15 to the test-problem process...")))))
     (handler-case
       (values
        (sort (block nil
