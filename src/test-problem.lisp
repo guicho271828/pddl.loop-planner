@@ -1,13 +1,26 @@
 (in-package :pddl.loop-planner)
 (cl-syntax:use-syntax :annot)
 
+;;;; wrapper functions
+
+(defun ulimit (rlimit)
+  (case rlimit
+    ((:infinity) "unlimited")
+    (t rlimit)))
+
+@export
+(defun wrap-option (string)
+  (format nil "~{\"~a\" ~}" (split " " string)))
+
 ;;;; parameters
 
 (defparameter *fd-dir* (pathname-as-directory #p"~/repos/downward"))
-;; @export
-;; (defparameter *fd-options* "--search astar(lmcut())")
 @export
-(defparameter *fd-options* "ipc seq-sat-lama-2011")
+(defparameter *opt-options* (wrap-option "--search astar(lmcut())"))
+@export
+(defparameter *lama-options* (wrap-option "ipc seq-sat-lama-2011"))
+@export
+(defparameter *fd-options* *lama-options*)
 (defvar *translate* (merge-pathnames "src/translate/translate.py" *fd-dir*))
 (defvar *preprocess* (merge-pathnames "src/preprocess/preprocess" *fd-dir*))
 (defvar *search* (merge-pathnames "src/search/downward" *fd-dir*))
@@ -88,17 +101,6 @@
          (declare (ignore c))
          -1)))))
 
-;;;; wrapper functions
-
-
-(defun ulimit (rlimit)
-  (case rlimit
-    ((:infinity) "unlimited")
-    (t rlimit)))
-
-(defun wrap-option (string)
-  (format nil "~{\"~a\" ~}" (split " " string)))
-
 ;;;; main function
 
 (declaim (ftype (function ((or string pathname)
@@ -118,7 +120,7 @@
                      domain
                      &key
                        (stream *standard-output*)
-                       (options (wrap-option *fd-options*))
+                       (options *fd-options*)
                        verbose
                        (memory *memory-limit*)
                        (time-limit *soft-time-limit*)
