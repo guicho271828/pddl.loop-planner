@@ -109,9 +109,9 @@
                            (:stream stream)
                            (:options string)
                            (:verbose boolean)
-                           (:memory (or fixnum keyword))
-                           (:time-limit (or fixnum keyword))
-                           (:hard-time-limit (or fixnum keyword)))
+                           (:memory (or integer keyword))
+                           (:time-limit (or integer keyword))
+                           (:hard-time-limit (or integer keyword)))
                           (values list real real real real real real))
                 test-problem))
 

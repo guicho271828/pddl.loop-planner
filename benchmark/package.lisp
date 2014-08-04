@@ -7,6 +7,7 @@
 (in-package :cl-user)
 (defpackage pddl.loop-planner.benchmark
   (:use :cl
+        :cl-rlimit
         :iterate
 	:alexandria
         :bordeaux-threads
