@@ -138,6 +138,7 @@ returns:
   max-memory of translate, preprocess, search"
   (let ((problem (pathname problem))
         (domain (pathname domain)))
+    (when verbose (fresh-line))
     (let ((process
            (sb-ext:run-program
             *test-problem*
