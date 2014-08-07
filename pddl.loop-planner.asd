@@ -28,7 +28,8 @@
   :components ((:file "src/package")
                (:module "src"
                 :components
-                ((:file :write-problem)
+                ((:file :write-actions)
+                 (:file :write-problem)
                  (:file :evaluator)
                  (:file :test-problem)
                  (:file :validate))
