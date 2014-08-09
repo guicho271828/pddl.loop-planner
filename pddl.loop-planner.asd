@@ -31,7 +31,6 @@
                 ((:file :write-actions)
                  (:file :write-problem)
                  (:file :evaluator)
-                 (:file :test-problem)
                  (:file :validate))
                 :depends-on ("src/package")))
   :description ""
