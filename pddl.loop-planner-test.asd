@@ -17,7 +17,6 @@
                 :components
                 ((:file :package)
                  (:file :basis)
-                 (:file :validate)
                  (:file :test-problem)
                  (:file :total-plan))))
   :perform (load-op :after (op c) 

@@ -28,10 +28,7 @@
   :components ((:file "src/package")
                (:module "src"
                 :components
-                ((:file :write-actions)
-                 (:file :write-problem)
-                 (:file :evaluator)
-                 (:file :validate))
+                ((:file :evaluator))
                 :depends-on ("src/package")))
   :description ""
   :long-description
